@@ -32,9 +32,8 @@ This repository is part of the data structure and algorithms (#EDA) teaching fra
 
 The students edit this section to add their names, Uniandes emails, and specify which project functionality of the project they will implement.
 
-1. Student No. 1 Name, Student No. 1 Uniandes Email, Student No. 1 owned functionality.
-1. Student No. 2 Name, Student No. 2 Uniandes Email, Student No. 2 owned functionality.
-1. Student No. 3 Name, Student No. 3 Uniandes Email, Student No. 3 owned functionality.
+1. Jacobo Zarruk, j.zarruk@uniandes.edu.co, 202223913
+1. María José Amorocho, m.amorocho@uniandes.edu.co, 202220179
 
 [Back to top](#challenge-template)
 

@@ -36,17 +36,36 @@ def new_controller():
     Crea una instancia del modelo
     """
     #TODO: Llamar la función del modelo que crea las estructuras de datos
-    pass
+    control = model.new_data_structs()
+    return control
 
 
 # Funciones para la carga de datos
 
-def load_data(control, filename):
+def load_data_tracks(control, filename):
     """
     Carga los datos del reto
     """
     # TODO: Realizar la carga de datos
-    pass
+    tracksfile = cf.data_dir + filename
+    input_file = csv.DictReader(open(tracksfile, encoding="utf-8"),
+                                delimiter=",")
+    
+    for track in input_file:
+        model.add_ordered_data(control,track) 
+        
+    model.order_time(control)
+    lasttrack = None
+    for track in control['ordered_data']:
+        if lasttrack is not None:
+            sametrack = lasttrack['individual-local-identifier'] == track['individual-local-identifier']
+            if sametrack:
+                print("same wolf id")
+            else:
+                print("different wolf")
+        lasttrack = track
+            
+    return control
 
 
 # Funciones de ordenamiento

@@ -46,6 +46,7 @@ from DISClib.Algorithms.Sorting import insertionsort as ins
 from DISClib.Algorithms.Sorting import selectionsort as se
 from DISClib.Algorithms.Sorting import mergesort as merg
 from DISClib.Algorithms.Sorting import quicksort as quk
+import datetime
 assert cf
 
 """
@@ -62,20 +63,58 @@ def new_data_structs():
     manera vacía para posteriormente almacenar la información.
     """
     #TODO: Inicializar las estructuras de datos
-    pass
+    
+    data_structs = {'ordered_data': None,'posiciones':None, 'grafo_dir':None}
+    
+    data_structs['ordered_data'] = {}
+    data_structs['posiciones'] = mp.newMap(maptype='PROBING')
+    data_structs['grafoDir'] = gr.newGraph(datastructure= "ADJ_LIST",directed=True)
 
+    return data_structs
 
 # Funciones para agregar informacion al modelo
 
-def add_data(data_structs, data):
+def add_ordered_data(data_structs, data):
     """
     Función para agregar nuevos elementos a la lista
     """
-    #TODO: Crear la función para agregar elementos a una lista
-    pass
+    #TO DO: Crear la función para agregar elementos a una lista
+    wolf_id = data['individual-local-identifier']
+    date = data['timestamp']
+    date_format = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M")
+    data['timestamp'] = date_format
+    
+    if wolf_id not in data_structs['ordered_data']:
+        data_structs['ordered_data'][wolf_id] = [data]
+    else:
+        data_structs['ordered_data'][wolf_id].append(data)
 
-
+def order_time(data_structs):
+    for lobo in data_structs['ordered_data']:
+        data_structs['ordered_data'][lobo].sort(key=lambda l: l['timestamp'])
+    
+    lst = []
+    for lobo in data_structs['ordered_data']:
+        for data in data_structs['ordered_data'][lobo]:
+            lst.append(data)
+            
+    data_structs['ordered_data'] = lst
 # Funciones para creacion de datos
+
+def addTrackConnection(data_strcuts, track,lasttrack):
+    origin = formatVertex(lasttrack)
+    destination = formatVertex(track)
+    addPosition(data_strcuts, origin)
+    addPosition(data_strcuts, destination)
+
+
+def addPosition(data_structs,positionId):
+    """
+    Adiciona una posición como un vertice del grafo
+    """
+    if not gr.containsVertex(data_structs['grafoDir'], positionId):
+        gr.insertVertex(data_structs['grafoDir'], positionId)
+    
 
 def new_data(id, info):
     """
@@ -199,3 +238,23 @@ def sort(data_structs):
     """
     #TODO: Crear función de ordenamiento
     pass
+
+# Funciones helper
+
+def formatVertex(track):
+    """
+    Se formatea el nombrer del vertice con la longitud y latitud del event seguido del identificador del lobo.
+    """
+    latitud = str(round(float(track['location-lat']),4))
+    nl = latitud.replace("-", "m")
+    new_lat = nl.replace(".","p")
+    
+    longitud = str(round(float(track['location-lon']),4))
+    nlo = longitud.replace("-", "m")
+    new_lon = nlo.replace(".","p")
+    
+    name = new_lat + "_" + new_lon + "_" + track['individual-local-identifier']
+    return name
+    
+position_id = "111p4534_56p1245_332"
+print(position_id[0:4])

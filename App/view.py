@@ -45,7 +45,8 @@ def new_controller():
         Se crea una instancia del controlador
     """
     #TODO: Llamar la función del controlador donde se crean las estructuras de datos
-    pass
+    return controller.new_controller()
+
 
 
 def print_menu():
@@ -61,13 +62,19 @@ def print_menu():
     print("9- Ejecutar Requerimiento 8")
     print("0- Salir")
 
+def opciones_tamaño():
+    tamano = int(input("Elija el tamaño del archivo:\n1.Small (1%)\n2.5%\n3.10%\n4.20%\n5.30%\n6.50%\n7.80%\n8.Large (100%)\n"))
+    tamanos=["small.csv","5pct.csv","10pct.csv","20pct.csv","30pct.csv","50pct.csv","80pct.csv","large.csv"]
+    return tamanos[tamano-1]
 
-def load_data(control):
+
+def load_data(control,filename):
     """
     Carga los datos
     """
     #TODO: Realizar la carga de datos
-    pass
+    controller.load_data_tracks(control,"wolfs/BA-Grey-Wolf-tracks-utf8-" +filename)
+
 
 
 def print_data(control, id):
@@ -156,8 +163,10 @@ if __name__ == "__main__":
         inputs = input('Seleccione una opción para continuar\n')
         try:
             if int(inputs) == 1:
+                filename = opciones_tamaño()
                 print("Cargando información de los archivos ....\n")
-                data = load_data(control)
+                data = load_data(control,filename)
+                
             elif int(inputs) == 2:
                 print_req_1(control)
 
