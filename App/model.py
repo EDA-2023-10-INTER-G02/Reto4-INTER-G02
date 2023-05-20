@@ -71,23 +71,29 @@ def new_data_structs():
     data_structs['posiciones'] = mp.newMap(maptype='PROBING')
     data_structs['grafoDir'] = gr.newGraph(datastructure= "ADJ_LIST",directed=True)
     data_structs['lobos'] = lt.newList(datastructure='ARRAY_LIST')
+    data_structs['MTPs'] = mp.newMap(maptype='PROBING')
+    data_structs['5Vertices'] = lt.newList(datastructure='ARRAY_LIST')
 
     return data_structs
 
 # Funciones para agregar informacion al modelo
 def addWolfsData(data_structs, data):
+    data['individual-id'] = data['animal-id'] + "_" + data['tag-id']
     lt.addLast(data_structs['lobos'],data)
-    entry = mp.get(data_structs['orderedData'],data['animal-id'])
+    entry = mp.get(data_structs['orderedData'],data['individual-id'])
     if entry is None:
         lst = lt.newList(datastructure='ARRAY_LIST')
-        mp.put(data_structs['orderedData'],data['animal-id'],lst)
+        mp.put(data_structs['orderedData'],data['individual-id'],lst)
 
 def add_data(data_structs, data):
     """
     Función para agregar información
     """
     #TO DO: ordena la información en un mapa (key= id lobo, value: lista de dicc con los eventos del lobo)
-    entry = mp.get(data_structs['orderedData'],data['individual-local-identifier'])
+    data['individual-id'] = data['individual-local-identifier'] +"_" + data['tag-local-identifier']
+    data['location-lat'] = round(float(data['location-lat']),3)
+    data['location-long'] = round(float(data['location-long']),3)
+    entry = mp.get(data_structs['orderedData'],data['individual-id'])
     lstEvents = me.getValue(entry)
     lt.addLast(lstEvents,data)
         
@@ -109,6 +115,7 @@ def addTrackConnection(data_structs):
     """
     #TODO: Crear la función para estructurar los datos
     wolfIndividualEdges = 0
+    counter = 0
     mayorlat = 0
     menorlat = 1000
     mayorlon = -1000
@@ -126,16 +133,19 @@ def addTrackConnection(data_structs):
                 addPosition(data_structs, destination)
                 distance = getDistance(track,lasttrack)
                 wolfIndividualEdges = addConnection(data_structs, origin, destination, distance,wolfIndividualEdges)
-                
-                if round(float(track['location-lat']),3) > mayorlat:
-                    mayorlat = round(float(track['location-lat']),3)
-                elif round(float(track['location-lat']),3) < menorlat:
-                    menorlat = round(float(track['location-lat']),3)
-                if round(float(track['location-long']),3) > mayorlon:
-                    mayorlon = round(float(track['location-long']),3)
-                elif round(float(track['location-long']),3) < menorlon:
-                    menorlon = round(float(track['location-long']),3)
+                if counter < 5 and track['node-id'] != lasttrack['node-id']:
+                    lt.addLast(data_structs['5Vertices'],track)
+                    counter += 1
+                if track['location-lat'] > mayorlat:
+                    mayorlat = track['location-lat']
+                elif track['location-lat'] < menorlat:
+                     menorlat = track['location-lat']
+                if track['location-long'] > mayorlon:
+                    mayorlon = track['location-long']
+                elif track['location-long'] < menorlon:
+                     menorlon = track['location-long']
             lasttrack = track
+            
     return wolfIndividualEdges, mayorlat,menorlat,mayorlon,menorlon
         
 def formatVertex(data_structs,track):
@@ -144,16 +154,17 @@ def formatVertex(data_structs,track):
     event seguido del identificador del lobo.
     """
         
-    latitud = str(round(float(track['location-lat']),3))
+    latitud = str(track['location-lat'])
     nl = latitud.replace("-", "m")
     new_lat = nl.replace(".","p")
     
-    longitud = str(round(float(track['location-long']),3))
+    longitud = str(track['location-long'])
     nlo = longitud.replace("-", "m")
     new_lon = nlo.replace(".","p")
     
-    name = new_lon + "_" + new_lat + "_" + track['individual-local-identifier']
+    name = new_lon + "_" + new_lat + "_" + track['individual-id']
     position = new_lon + "_" + new_lat
+    track['node-id'] = name
     
     entry = mp.get(data_structs['posiciones'],position)
     if entry is None:
@@ -164,10 +175,8 @@ def formatVertex(data_structs,track):
         lstWolfsEvents = me.getValue(entry)
         lstIds = lt.newList('ARRAY_LIST')
         for event in lt.iterator(lstWolfsEvents):
-            """if track['individual-local-identifier'] != event['individual-local-identifier']:
-                lt.addLast(lstWolfsEvents,track)"""
-            lt.addLast(lstIds,event['individual-local-identifier'])
-        containsWolfEvent = lt.isPresent(lstIds,track['individual-local-identifier'])
+            lt.addLast(lstIds,event['individual-id'])
+        containsWolfEvent = lt.isPresent(lstIds,track['individual-id'])
         if containsWolfEvent == 0:
             lt.addLast(lstWolfsEvents,track)
         
@@ -210,7 +219,6 @@ def addPositionConnection(data_structs):
     que se puede realizar en una posicion."""
     
     lstPosiciones = mp.keySet(data_structs['posiciones'])
-    totalMTPs = 0
     totalWolfsMTPs = 0
     WeightZeroEdges = 0
 
@@ -219,40 +227,54 @@ def addPositionConnection(data_structs):
         if lt.size(lstWolfsEvents) >= 2:
             totalWolfsMTPs += lt.size(lstWolfsEvents)
             for event in lt.iterator(lstWolfsEvents):
-                vertexName = key + '_' + event['individual-local-identifier']
+                vertexName = key + '_' + event['individual-id']
                 containsMTP = gr.containsVertex(data_structs['grafoDir'],key)
                 if not containsMTP:
                     gr.insertVertex(data_structs['grafoDir'],key)
-                    totalMTPs += 1
-                gr.addEdge(data_structs['grafoDir'],key,vertexName,3000)
+                    lstMTPs =lt.newList('ARRAY_LIST')
+                    lt.addLast(lstMTPs,event)
+                    mp.put(data_structs['MTPs'],key,lstMTPs)
+                gr.addEdge(data_structs['grafoDir'],key,vertexName,0)
+                gr.addEdge(data_structs['grafoDir'],vertexName,key,0)
                 WeightZeroEdges += 1
-
+                
+    totalMTPs = lt.size(mp.keySet(data_structs['MTPs']))
     vertexNum = gr.numVertices(data_structs['grafoDir'])
     return totalMTPs,totalWolfsMTPs,WeightZeroEdges,vertexNum
     
-def firstFiveMPTs(data_structs):
-    lstPosiciones = mp.keySet(data_structs['posiciones'])
-    ret = []
-    counter = 0
-    for MTP in lt.iterator(lstPosiciones):
-        if counter < 5:
-            lstEvents = mp.get(data_structs['posiciones'],MTP)['value']
-            if lt.size(lstEvents) >= 2:
-                track = lt.firstElement(lstEvents)
-                coordenadas = "("+ track['location-long'] + ", " + track['location-lat']+ ")"
-                lst = [MTP,coordenadas,lt.size(lstEvents)]
-                ret.append(lst)
-                counter += 1
-        else:
-            return ret[0:5]
-            
+def TabulateCD(data_structs):
+    lst = []
+    for elem in lt.iterator(data_structs['5Vertices']):
+        lstEvent = [] 
+        lstEvent.append(elem['location-long'])
+        lstEvent.append(elem['location-lat'])
+        lstEvent.append(elem['node-id'])
+        lstEvent.append(elem['individual-id'])
+        lstadjacents = gr.adjacents(data_structs['grafoDir'],elem['node-id'])
+        lstEvent.append(lt.size(lstadjacents))
+        lst.append(lstEvent)
+    
+    MTPs = mp.keySet(data_structs['MTPs'])
+    LastMTPs = lt.subList(MTPs,(lt.size(MTPs)-5),5)
+    for mtp in lt.iterator(LastMTPs):
+        lstEvent = []
+        elem = mp.get(data_structs['MTPs'],mtp)['value']['elements'][0]
+        lstEvent.append(elem['location-long'])
+        lstEvent.append(elem['location-lat'])
+        lstEvent.append(mtp)
+        lstEvent.append(elem['individual-id'])
+        lstadjacents = gr.adjacents(data_structs['grafoDir'],mtp)
+        lstEvent.append(lt.size(lstadjacents))
+        lst.append(lstEvent)
+    return lst
+        
 # Funciones de consulta
 
 def graphSize(data_structs):
     """
     Retorna el tamaño de un grafo (numero total de vértices y nodos)
     """
-    #TODO: Crear la función para obtener un dato de una lista
+    #TO DO: Crear la función para obtener un dato de una lista
     totalVertices = gr.numVertices(data_structs['grafoDir'])
     totalEdges = gr.numEdges(data_structs['grafoDir'])
     
@@ -263,10 +285,11 @@ def data_size(lst):
     """
     Retorna el tamaño de la lista de datos
     """
-    #TODO: Crear la función para obtener el tamaño de una lista
+    #TO DO: Crear la función para obtener el tamaño de una lista
     return lt.size(lst)
 
 def imprimir(control,nodoPrueba):
+    print(gr.containsVertex(control['grafoDir'],nodoPrueba))
     lstNodos = gr.adjacents(control['grafoDir'],nodoPrueba)
     for nodo in lt.iterator(lstNodos):
         print(gr.getEdge(control['grafoDir'],nodoPrueba,nodo))

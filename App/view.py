@@ -68,7 +68,7 @@ def opciones_tamaño():
 
 def printLoadData(control):
     info = controller.printLoadData(control)
-    print(tabulate(info,headers=["Identificador del MTP","Geolocalización aproximada","Numero de encuentros de lobos en ese punto"],tablefmt='grid'))
+    print(tabulate(info,headers=["Location Long","Location Lat","node-id","individual-id","adjacents nodes"],tablefmt='grid'))
 
 def load_data(control,filename):
     """
@@ -181,7 +181,7 @@ if __name__ == "__main__":
                 print('Rango del área rectangular que ocupan los lobos grises de Boutin Alberta en Canadá:')
                 print('Latitudes: desde '+str(menorlat)+' hasta '+str(mayorlat))
                 print('Longitudes: desde '+str(menorlon)+' hasta '+str(mayorlon))
-                print('-> Tiempo de ejecución: '+str(totalTime)+"\n")
+                print('-> Tiempo de ejecución: '+str(totalTime)+"\n"+"\n"+"Primeros y últimos 5 nodos cargados en el grafo")
                 printLoadData(control)
                 #controller.imprimir_nodo_prueba(control)
                 print("\n")

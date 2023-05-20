@@ -73,11 +73,11 @@ def load_data(control, filename):
     return wolfsNum, rtas,tracksNum,wolfIndividualEdges,graphSize,mayorlat,menorlat,mayorlon,menorlon,totalTime
     
 def printLoadData(control):
-    tabulate = model.firstFiveMPTs(control)
+    tabulate = model.TabulateCD(control)
     return tabulate
 
 def imprimir_nodo_prueba(control):
-    nodo = 'm112p0519_57p231_13791'
+    nodo = 'm111p396_56p826_33671_33671'
     model.imprimir(control,nodo)
     
     
