@@ -181,9 +181,9 @@ if __name__ == "__main__":
                 print('Rango del área rectangular que ocupan los lobos grises de Boutin Alberta en Canadá:')
                 print('Latitudes: desde '+str(menorlat)+' hasta '+str(mayorlat))
                 print('Longitudes: desde '+str(menorlon)+' hasta '+str(mayorlon))
-                print('-> Tiempo de ejecución: '+str(totalTime)+"\n"+"\n"+"Primeros y últimos 5 nodos cargados en el grafo")
+                print('-> Tiempo de ejecución: '+str(totalTime)+"\n"+"\n"+"Primeros y últimos 5 nodos cargados en el grafo dirigido")
                 printLoadData(control)
-                #controller.imprimir_nodo_prueba(control)
+                controller.imprimir_nodo_prueba(control)
                 print("\n")
                 
             elif int(inputs) == 2:

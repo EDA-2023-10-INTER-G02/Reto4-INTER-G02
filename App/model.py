@@ -70,6 +70,7 @@ def new_data_structs():
     data_structs['orderedData'] = mp.newMap(maptype='PROBING')
     data_structs['posiciones'] = mp.newMap(maptype='PROBING')
     data_structs['grafoDir'] = gr.newGraph(datastructure= "ADJ_LIST",directed=True)
+    data_structs['grafoNoDir'] = gr.newGraph(datastructure= "ADJ_LIST",directed=False)
     data_structs['lobos'] = lt.newList(datastructure='ARRAY_LIST')
     data_structs['MTPs'] = mp.newMap(maptype='PROBING')
     data_structs['5Vertices'] = lt.newList(datastructure='ARRAY_LIST')
@@ -188,6 +189,8 @@ def addPosition(data_structs,vertexName):
     """
     if not gr.containsVertex(data_structs['grafoDir'], vertexName):
         gr.insertVertex(data_structs['grafoDir'], vertexName)
+    if not gr.containsVertex(data_structs['grafoNoDir'], vertexName):
+        gr.insertVertex(data_structs['grafoNoDir'], vertexName)
     return data_structs
     
 def getDistance(origin, destination):
@@ -205,10 +208,14 @@ def addConnection(data_structs, origin, destination, distance,wolfIndividualEdge
     """
     Adiciona un arco entre dos posiciones
     """
-    edge = gr.getEdge(data_structs['grafoDir'], origin, destination)
-    if edge is None:
+    edge1 = gr.getEdge(data_structs['grafoDir'], origin, destination)
+    if edge1 is None:
         gr.addEdge(data_structs['grafoDir'], origin, destination, distance)
         wolfIndividualEdges += 1
+    edge2 = gr.getEdge(data_structs['grafoNoDir'], origin, destination)
+    if edge2 is None:
+        gr.addEdge(data_structs['grafoNoDir'], origin, destination, distance)
+    
     return wolfIndividualEdges
 
 def addPositionConnection(data_structs):
@@ -237,6 +244,13 @@ def addPositionConnection(data_structs):
                 gr.addEdge(data_structs['grafoDir'],key,vertexName,0)
                 gr.addEdge(data_structs['grafoDir'],vertexName,key,0)
                 WeightZeroEdges += 1
+                containsMTP2 = gr.containsVertex(data_structs['grafoNoDir'],key)
+                if not containsMTP2:
+                    gr.insertVertex(data_structs['grafoNoDir'],key)
+                    lstMTPs =lt.newList('ARRAY_LIST')
+                    lt.addLast(lstMTPs,event)
+                    mp.put(data_structs['MTPs'],key,lstMTPs)
+                gr.addEdge(data_structs['grafoNoDir'],key,vertexName,0)
                 
     totalMTPs = lt.size(mp.keySet(data_structs['MTPs']))
     vertexNum = gr.numVertices(data_structs['grafoDir'])
@@ -289,10 +303,9 @@ def data_size(lst):
     return lt.size(lst)
 
 def imprimir(control,nodoPrueba):
-    print(gr.containsVertex(control['grafoDir'],nodoPrueba))
-    lstNodos = gr.adjacents(control['grafoDir'],nodoPrueba)
-    for nodo in lt.iterator(lstNodos):
-        print(gr.getEdge(control['grafoDir'],nodoPrueba,nodo))
+    print("GRAFO NO DIRIGIDO:")
+    print(gr.numVertices(control['grafoNoDir']))
+    print(gr.numEdges(control['grafoNoDir']))
     
     
 def req_1(data_structs):
