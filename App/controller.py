@@ -25,6 +25,7 @@ import model
 import time
 import csv
 import tracemalloc
+from DISClib.ADT import graph as gr
 
 """
 El controlador se encarga de mediar entre la vista y el modelo.
@@ -35,39 +36,51 @@ def new_controller():
     """
     Crea una instancia del modelo
     """
-    #TODO: Llamar la función del modelo que crea las estructuras de datos
+    #TO DO: Llamar la función del modelo que crea las estructuras de datos
     control = model.new_data_structs()
     return control
 
 
 # Funciones para la carga de datos
 
-def load_data_tracks(control, filename):
+def load_data(control, filename):
     """
     Carga los datos del reto
     """
     # TODO: Realizar la carga de datos
+    tracksNum = 0
     tracksfile = cf.data_dir + filename
-    input_file = csv.DictReader(open(tracksfile, encoding="utf-8"),
-                                delimiter=",")
+    input_file = csv.DictReader(open(tracksfile, encoding="utf-8"), delimiter=",")
     
+    wolfsFile = cf.data_dir + 'wolfs/BA-Grey-Wolf-individuals-utf8-small.csv'
+    input_fileWolfs = csv.DictReader(open(wolfsFile, encoding="utf-8"), delimiter=",")
+    timeI = get_time()
+    for wolf in input_fileWolfs:
+        model.addWolfsData(control,wolf)
+     
     for track in input_file:
-        model.add_ordered_data(control,track) 
+        model.add_data(control,track)
+        tracksNum += 1
         
-    model.order_time(control)
-    lasttrack = None
-    for track in control['ordered_data']:
-        if lasttrack is not None:
-            sametrack = lasttrack['individual-local-identifier'] == track['individual-local-identifier']
-            if sametrack:
-                print("same wolf id")
-            else:
-                print("different wolf")
-        lasttrack = track
-            
-    return control
+    model.sortData(control)
+    wolfIndividualEdges,mayorlat,menorlat,mayorlon,menorlon = model.addTrackConnection(control)
+    rtas = model.addPositionConnection(control)
+    timeF = get_time()
+    wolfsNum = model.data_size(control['lobos'])
+    graphSize = model.graphSize(control)
+    totalTime = delta_time(timeI,timeF)
+    
+    return wolfsNum, rtas,tracksNum,wolfIndividualEdges,graphSize,mayorlat,menorlat,mayorlon,menorlon,totalTime
+    
+def printLoadData(control):
+    tabulate = model.firstFiveMPTs(control)
+    return tabulate
 
-
+def imprimir_nodo_prueba(control):
+    nodo = 'm112p0519_57p231_13791'
+    model.imprimir(control,nodo)
+    
+    
 # Funciones de ordenamiento
 
 def sort(control):
@@ -188,3 +201,4 @@ def delta_memory(stop_memory, start_memory):
     # de Byte -> kByte
     delta_memory = delta_memory/1024.0
     return delta_memory
+

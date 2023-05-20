@@ -44,9 +44,8 @@ def new_controller():
     """
         Se crea una instancia del controlador
     """
-    #TODO: Llamar la función del controlador donde se crean las estructuras de datos
+    #TO DO: Llamar la función del controlador donde se crean las estructuras de datos
     return controller.new_controller()
-
 
 
 def print_menu():
@@ -67,14 +66,17 @@ def opciones_tamaño():
     tamanos=["small.csv","5pct.csv","10pct.csv","20pct.csv","30pct.csv","50pct.csv","80pct.csv","large.csv"]
     return tamanos[tamano-1]
 
+def printLoadData(control):
+    info = controller.printLoadData(control)
+    print(tabulate(info,headers=["Identificador del MTP","Geolocalización aproximada","Numero de encuentros de lobos en ese punto"],tablefmt='grid'))
 
 def load_data(control,filename):
     """
     Carga los datos
     """
     #TODO: Realizar la carga de datos
-    controller.load_data_tracks(control,"wolfs/BA-Grey-Wolf-tracks-utf8-" +filename)
-
+    info = controller.load_data(control,"wolfs/BA-Grey-Wolf-tracks-utf8-" +filename)
+    return info
 
 
 def print_data(control, id):
@@ -165,7 +167,24 @@ if __name__ == "__main__":
             if int(inputs) == 1:
                 filename = opciones_tamaño()
                 print("Cargando información de los archivos ....\n")
-                data = load_data(control,filename)
+                wolfsNum, rtas,tracksNum,wolfIndividualEdges,graphSize,mayorlat,menorlat,mayorlon,menorlon,totalTime = load_data(control,filename)
+                totalMTPs,totalWolfsMTPs,WeightZeroEdges,vertexNum = rtas
+                totalVertices,totalEdges = graphSize
+                print("Total de lobos reconocidos en el estudio: " +str(wolfsNum))
+                print("Total de puntos de encuentro reconocidos (MTPs): " +str(totalMTPs))
+                print("Total de lobos presentes en los puntos de encuentro (MTPs): " +str(totalWolfsMTPs))
+                print("Total de eventos cargados durante el estudio: "+str(tracksNum))
+                print("Total de arcos para unir nodos de encuentro y puntos de seguimiento: "+str(WeightZeroEdges))
+                print('Total de arcos creados para representar el movimiento de los individuos: '+str(wolfIndividualEdges))
+                print('\nTotal de vértices en el grafo: ' +str(totalVertices))
+                print('Total de arcos en el grafo: '+str(totalEdges))
+                print('Rango del área rectangular que ocupan los lobos grises de Boutin Alberta en Canadá:')
+                print('Latitudes: desde '+str(menorlat)+' hasta '+str(mayorlat))
+                print('Longitudes: desde '+str(menorlon)+' hasta '+str(mayorlon))
+                print('-> Tiempo de ejecución: '+str(totalTime)+"\n")
+                printLoadData(control)
+                #controller.imprimir_nodo_prueba(control)
+                print("\n")
                 
             elif int(inputs) == 2:
                 print_req_1(control)
@@ -201,3 +220,4 @@ if __name__ == "__main__":
             print("ERR:", exp)
             traceback.print_exc()
     sys.exit(0)
+
