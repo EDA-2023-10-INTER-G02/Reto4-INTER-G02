@@ -323,13 +323,14 @@ def req_2(data_structs, initialStation, destination):
     # TODO: Realizar el requerimiento 2
     data_structs['search']= bfs.BreadhtFisrtSearch(data_structs['grafoDir'],initialStation)
     hay_camino= bfs.hasPathTo(data_structs['search'],destination)
-    lista_camino= lt.newList('ARRAY_LIST')
-    camino= bfs.pathTo(data_structs['search'],destination)
-    if camino is not None:
-        pathlen = st.size(camino)
-        while (not st.isEmpty(camino)):
-            stop = st.pop(camino)
-            lt.addLast(lista_camino, stop)
+    if hay_camino==True:
+        lista_camino= lt.newList('ARRAY_LIST')
+        camino= bfs.pathTo(data_structs['search'],destination)
+        if camino is not None:
+            pathlen = st.size(camino)
+            while (not st.isEmpty(camino)):
+                stop = st.pop(camino)
+                lt.addLast(lista_camino, stop)
     return lista_camino, pathlen
 
 
