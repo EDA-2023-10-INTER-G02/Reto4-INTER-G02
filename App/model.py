@@ -303,17 +303,35 @@ def data_size(lst):
     return lt.size(lst)
 
 def imprimir(control,nodoPrueba):
-    print("GRAFO NO DIRIGIDO:")
-    print(gr.numVertices(control['grafoNoDir']))
-    print(gr.numEdges(control['grafoNoDir']))
+    #print(gr.vertices(control['grafoDir']))
+    0
     
-    
-def req_1(data_structs):
+def req_1(data_structs,initialPoint,destPoint):
     """
     Función que soluciona el requerimiento 1
     """
     # TODO: Realizar el requerimiento 1
-    pass
+    struct= dfs.DepthFirstSearch(data_structs['grafoDir'],initialPoint) 
+    data_structs['search'] = struct
+    camino = dfs.hasPathTo(data_structs['search'],destPoint)
+    if camino:
+        ruta = dfs.pathTo(data_structs['search'],destPoint)
+    lstCamino = lt.newList('ARRAY_LIST')
+    while (not st.isEmpty(ruta)):
+        lt.addLast(lstCamino,st.pop(ruta))
+        
+    sizeCamino =lt.size(lstCamino)
+    totalDist = 0
+    lasttrack = None
+    totalMtps = 0
+    infoNodos = lt.newList('ARRAY_LIST')
+    mtps = mp.keySet(data_structs['MTPs'])
+    for nodo in lt.iterator(lstCamino):
+        if lasttrack != None:
+            totalDist += gr.getEdge(data_structs['grafoDir'],lasttrack,nodo)
+        if lt.isPresent(mtps,nodo):
+            totalMtps += 1
+    return lstCamino
 
 
 def req_2(data_structs, initialStation, destination):
