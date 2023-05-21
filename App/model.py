@@ -397,15 +397,31 @@ def req_2(data_structs, initialStation, destination):
     # TODO: Realizar el requerimiento 2
     data_structs['search']= bfs.BreadhtFisrtSearch(data_structs['grafoDir'],initialStation)
     hay_camino= bfs.hasPathTo(data_structs['search'],destination)
+    num_gathering=0
+    tot_dist=0
+    ult_nodo= None
     if hay_camino==True:
         lista_camino= lt.newList('ARRAY_LIST')
         camino= bfs.pathTo(data_structs['search'],destination)
         if camino is not None:
-            pathlen = st.size(camino)
+            num_vert = st.size(camino)
             while (not st.isEmpty(camino)):
                 stop = st.pop(camino)
+                lista_stop= []
+                if ult_nodo!= None:
+                    tot_dist+= gr.getEdge(data_structs['grafoDir'],ult_nodo,stop)['weight']
+                    dist= gr.getEdge(data_structs['grafoDir'],ult_nodo,stop)['weight']
+                cant_= stop.count('_')
+                if cant_==1:
+                    num_gathering+=1
+                    if stop!=destination:
+                        print(gr.adjacentEdges(data_structs['grafoDir'],stop))
+                ult_nodo= stop
                 lt.addLast(lista_camino, stop)
-    return lista_camino, pathlen
+    num_edge= num_vert-1
+    tot_dist= round(tot_dist, 4)
+    num_vert2= num_vert-num_gathering
+    return lista_camino, num_vert, num_edge, num_vert2, num_gathering, tot_dist
 
 
 

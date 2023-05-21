@@ -107,9 +107,8 @@ def print_req_2(control):
     # TODO: Imprimir el resultado del requerimiento 2
     ini= input('Nodo inicial')
     fin= input('Nodo final')
-    path, longitud= controller.req_2(control, ini, fin)
-    print(path)
-    print(longitud)
+    print(controller.req_2(control, ini, fin))
+
 
 
 def print_req_3(control):
