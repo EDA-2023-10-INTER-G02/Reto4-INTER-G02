@@ -63,14 +63,14 @@ def load_data(control, filename):
         tracksNum += 1
         
     model.sortData(control)
-    wolfIndividualEdges,mayorlat,menorlat,mayorlon,menorlon = model.addTrackConnection(control)
+    wolfIndividualVertex,mayorlat,menorlat,mayorlon,menorlon = model.addTrackConnection(control)
     rtas = model.addPositionConnection(control)
     timeF = get_time()
     wolfsNum = model.data_size(control['lobos'])
     graphSize = model.graphSize(control)
     totalTime = delta_time(timeI,timeF)
     
-    return wolfsNum, rtas,tracksNum,wolfIndividualEdges,graphSize,mayorlat,menorlat,mayorlon,menorlon,totalTime
+    return wolfsNum, rtas,tracksNum,wolfIndividualVertex,graphSize,mayorlat,menorlat,mayorlon,menorlon,totalTime
     
 def printLoadData(control):
     tabulate = model.TabulateCD(control)
@@ -106,6 +106,8 @@ def req_1(control,pointI,pointF):
     Retorna el resultado del requerimiento 1
     """
     # TODO: Modificar el requerimiento 1
+    pointI = 'm112p252_56p796_32259_32259'
+    pointF = 'm112p324_56p791_32259_32259'
     return model.req_1(control,pointI,pointF)
 
 
