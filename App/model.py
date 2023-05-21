@@ -255,6 +255,10 @@ def addPositionConnection(data_structs):
                     lstMTPs =lt.newList('ARRAY_LIST')
                     lt.addLast(lstMTPs,event)
                     mp.put(data_structs['MTPs'],key,lstMTPs)
+                else:
+                    entry = mp.get(data_structs['MTPs'],key)
+                    lstMTPs = me.getValue(entry)
+                    lt.addLast(lstMTPs,event)
                 gr.addEdge(data_structs['grafoDir'],key,vertexName,0)
                 gr.addEdge(data_structs['grafoDir'],vertexName,key,0)
                 WeightZeroEdges += 1
@@ -314,8 +318,7 @@ def data_size(lst):
     return lt.size(lst)
 
 def imprimir(control,nodoPrueba):
-    print(mp.get(control['individualPoints'],'m111p104_56p851_32258_32258'))
-    print(control['MTPs'])
+    print(mp.get(control['MTPs'],'m112p107_56p895'))
     
     
 def req_1(data_structs,initialPoint,destPoint):
@@ -323,7 +326,7 @@ def req_1(data_structs,initialPoint,destPoint):
     Función que soluciona el requerimiento 1
     """
     # TODO: Realizar el requerimiento 1
-    data_structs['search']= dfs.DepthFirstSearch(data_structs['grafoDir'],initialPoint) 
+    data_structs['search']= dfs.DepthFirstSearch(data_structs['grafoNoDir'],initialPoint) 
     camino = dfs.hasPathTo(data_structs['search'],destPoint)
     lstCamino = lt.newList('ARRAY_LIST')
     if camino:
@@ -331,56 +334,61 @@ def req_1(data_structs,initialPoint,destPoint):
         while (not st.isEmpty(ruta)):
             lt.addLast(lstCamino,st.pop(ruta))
             
-    lastElem = lt.lastElement(lstCamino)
-    lt.addLast(lstCamino,lastElem)
-    totalDist = 0
-    lasttrack = None
-    totalMtps = 0
-    lstReturn = lt.newList('ARRAY_LIST')
-    #mtps = mp.keySet(data_structs['MTPs'])
-    for nodo in lt.iterator(lstCamino):
-        lstInfo = lt.newList('ARRAY_LIST')
-        if lasttrack != None:
-            try:
-                totalDist += gr.getEdge(data_structs['grafoDir'],lasttrack,nodo)['weight']
-            except:
-                totalDist += 0
-            entry = mp.get(data_structs['individualPoints'],lasttrack)
-            if entry != None:
-                commonWolfs = 1
-                wolfsId = me.getValue(entry)['elements'][0]['individual-id']
-            else: 
-                entry = mp.get(data_structs['MTPs'],lasttrack)
-                totalMtps += 1
-                value = me.getValue(entry)
-                commonWolfs = lt.size(entry)
-                wolfsIds = lt.newList('ARRAY_LIST')
-                for event in lt.iterator(value):
-                    lt.addLast(wolfsIds,event['individual-id'])
-                if lt.size(wolfsIds) > 6:
-                    wolfsId = getiFirstandLast(wolfsIds,3)
-                else:
-                    wolfsId = wolfsIds
-            value = me.getValue(entry)['elements'][0]
-            lt.addLast(lstInfo,value['node-id'])
-            lt.addLast(lstInfo,value['location-long'])
-            lt.addLast(lstInfo,value['location-lat'])
-            lt.addLast(lstInfo,commonWolfs)
-            lt.addLast(lstInfo,wolfsId)
-            try:
-                lt.addLast(lstInfo,(gr.getEdge(data_structs['grafoDir'],lasttrack,nodo)['weight']))
-            except:
-                lt.addLast(lstInfo,0)
-            lt.addLast(lstReturn,lstInfo)
-        lasttrack = nodo
-      
-    if lt.size(lstReturn) > 5:
-        rta = getiFirstandLast(lstReturn,5)
+    if camino == False: 
+        return 0,0,[]
     else:
-        rta = lstReturn
-    
-    return totalDist,totalMtps,rta
-
+        lastElem = lt.lastElement(lstCamino)
+        lt.addLast(lstCamino,lastElem)
+        totalDist = 0
+        lasttrack = None
+        totalMtps = 0
+        lstReturn = lt.newList('ARRAY_LIST')
+        for nodo in lt.iterator(lstCamino):
+            lstInfo = lt.newList('ARRAY_LIST')
+            if lasttrack != None:
+                try:
+                    totalDist += gr.getEdge(data_structs['grafoNoDir'],lasttrack,nodo)['weight']
+                except:
+                    totalDist += 0
+                entry = mp.get(data_structs['individualPoints'],lasttrack)
+                if entry != None:
+                    commonWolfs = 1
+                    wolfsId = me.getValue(entry)['elements'][0]['individual-id']
+                    nodeId = me.getValue(entry)['elements'][0]['node-id']
+                else: 
+                    entry = mp.get(data_structs['MTPs'],lasttrack)
+                    totalMtps += 1
+                    value = me.getValue(entry)
+                    nodeId = lasttrack
+                    commonWolfs = lt.size(value)
+                    wolfsIds = lt.newList('ARRAY_LIST')
+                    for event in lt.iterator(value):
+                        lt.addLast(wolfsIds,event['individual-id'])
+                    if lt.size(wolfsIds) > 6:
+                        wolfsId = getIFirstandLast(wolfsIds,3)
+                    else:
+                        lis = []
+                        for wolf in lt.iterator(wolfsIds):
+                            lis.append(wolf)
+                        wolfsId = lis
+                value = me.getValue(entry)['elements'][0]
+                lt.addLast(lstInfo,nodeId)
+                lt.addLast(lstInfo,value['location-long'])
+                lt.addLast(lstInfo,value['location-lat'])
+                lt.addLast(lstInfo,commonWolfs)
+                lt.addLast(lstInfo,wolfsId)
+                try:
+                    lt.addLast(lstInfo,(gr.getEdge(data_structs['grafoNoDir'],lasttrack,nodo)['weight']))
+                except:
+                    lt.addLast(lstInfo,0)
+                lt.addLast(lstReturn,lstInfo)
+            lasttrack = nodo
+        
+        if lt.size(lstReturn) > 10:
+            rta = getiFirstandLast(lstReturn,5)
+        else:
+            rta = lstReturn
+        return totalDist,totalMtps,rta
 
 def req_2(data_structs, initialStation, destination):
     """
@@ -492,10 +500,17 @@ def getiFirstandLast(lst,i):
         first = lt.firstElement(lst)
         lt.addLast(newLst,first)
         lt.removeFirst(lst)
-    for j in range(0,i):
+    for j in range(0,i+1):
         last = lt.lastElement(lst)
         lt.addFirst(lstAux,last)
         lt.removeLast(lst)
     for elem in lt.iterator(lstAux):
         lt.addLast(newLst,elem)
+    return newLst
+
+def getIFirstandLast(lst,i):
+    newLst = []
+    lista = getiFirstandLast(lst,i)
+    for elem in lt.iterator(lista):
+        newLst.append(elem)
     return newLst

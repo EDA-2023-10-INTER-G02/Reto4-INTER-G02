@@ -193,14 +193,19 @@ if __name__ == "__main__":
                 print('Longitudes: desde '+str(menorlon)+' hasta '+str(mayorlon))
                 print('-> Tiempo de ejecución: '+str(totalTime)+"\n"+"\n"+"Primeros y últimos 5 nodos cargados en el grafo dirigido")
                 printLoadData(control)
-                #controller.imprimir_nodo_prueba(control)
+                controller.imprimir_nodo_prueba(control)
                 print("\n")
                 
             elif int(inputs) == 2:
                 totalDist,Mtps,rta = print_req_1(control)
-                print("Distancia total entre punto de origen y destino: "+str(totalDist))
-                print("Total de puntos de encuentro por donde pasan los lobos: " + str(Mtps))
-                print_Tabulate_req1(rta)
+                if rta == []:
+                    print('No hay camino')
+                else:
+                    print("\nDistancia total entre punto de origen y destino: "+str(round(totalDist,4)))
+                    print("Total de puntos de encuentro por donde pasan los lobos: " + str(Mtps)+"\n")
+                    print("Cinco primeros y últimos vértices de la ruta: ")
+                    print_Tabulate_req1(rta)
+                    print("\n")
 
             elif int(inputs) == 3:
                 print_req_2(control)

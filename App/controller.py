@@ -77,7 +77,7 @@ def printLoadData(control):
     return tabulate
 
 def imprimir_nodo_prueba(control):
-    nodo = 'm111p396_56p826_33671_33671'
+    nodo = 'm111p369_57p033_32261A_32261'
     model.imprimir(control,nodo)
     
     
@@ -106,7 +106,7 @@ def req_1(control,pointI,pointF):
     Retorna el resultado del requerimiento 1
     """
     # TODO: Modificar el requerimiento 1
-    pointI = 'm112p252_56p796_32259_32259'
+    pointI = 'm112p277_56p803_32269_33678_32269'
     pointF = 'm112p324_56p791_32259_32259'
     return model.req_1(control,pointI,pointF)
 
