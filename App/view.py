@@ -69,7 +69,7 @@ def opciones_tamaño():
 def printLoadData(control):
     info = controller.printLoadData(control)
     print(tabulate(info,headers=["Location Long","Location Lat","node-id","individual-id","adjacents nodes"],tablefmt='grid'))
-
+    
 def load_data(control,filename):
     """
     Carga los datos

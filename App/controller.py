@@ -106,8 +106,8 @@ def req_1(control,pointI,pointF):
     Retorna el resultado del requerimiento 1
     """
     # TODO: Modificar el requerimiento 1
-    pointI = 'm112p277_56p803_32269_33678_32269'
-    pointF = 'm112p324_56p791_32259_32259'
+    pointI = 'm111p862_57p449'
+    pointF = 'm111p908_57p427'
     return model.req_1(control,pointI,pointF)
 
 
