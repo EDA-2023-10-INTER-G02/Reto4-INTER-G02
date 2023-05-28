@@ -50,6 +50,7 @@ import datetime
 import math
 assert cf
 import sys
+from tabulate import tabulate
 default_limit = 1000
 sys.setrecursionlimit(default_limit*10)
 
@@ -71,7 +72,7 @@ def new_data_structs():
     data_structs['posiciones'] = mp.newMap(maptype='PROBING')
     data_structs['grafoDir'] = gr.newGraph(datastructure= "ADJ_LIST",directed=True)
     data_structs['grafoNoDir'] = gr.newGraph(datastructure= "ADJ_LIST",directed=False)
-    data_structs['lobos'] = lt.newList(datastructure='ARRAY_LIST')
+    data_structs['lobos'] = mp.newMap(maptype='PROBING')
     data_structs['MTPs'] = mp.newMap(maptype='PROBING')
     data_structs['individualPoints'] = mp.newMap(maptype='PROBING')
     
@@ -81,7 +82,7 @@ def new_data_structs():
 # Funciones para agregar informacion al modelo
 def addWolfsData(data_structs, data):
     data['individual-id'] = data['animal-id'] + "_" + data['tag-id']
-    lt.addLast(data_structs['lobos'],data)
+    mp.put(data_structs['lobos'],data['individual-id'],data)
     entry = mp.get(data_structs['orderedData'],data['individual-id'])
     if entry is None:
         lst = lt.newList(datastructure='ARRAY_LIST')
@@ -329,6 +330,7 @@ def req_1(data_structs,initialPoint,destPoint):
     data_structs['search']= dfs.DepthFirstSearch(data_structs['grafoDir'],initialPoint) 
     camino = dfs.hasPathTo(data_structs['search'],destPoint)
     lstCamino = lt.newList('ARRAY_LIST')
+    trackingPoints = 0
     if camino:
         ruta = dfs.pathTo(data_structs['search'],destPoint)
         while (not st.isEmpty(ruta)):
@@ -355,6 +357,7 @@ def req_1(data_structs,initialPoint,destPoint):
                     commonWolfs = 1
                     wolfsId = me.getValue(entry)['elements'][0]['individual-id']
                     nodeId = me.getValue(entry)['elements'][0]['node-id']
+                    trackingPoints += 1
                 else: 
                     entry = mp.get(data_structs['MTPs'],lasttrack)
                     totalMtps += 1
@@ -367,16 +370,20 @@ def req_1(data_structs,initialPoint,destPoint):
                     if lt.size(wolfsIds) > 6:
                         wolfsId = getIFirstandLast(wolfsIds,3)
                     else:
-                        lis = []
+                        res = ""
                         for wolf in lt.iterator(wolfsIds):
-                            lis.append(wolf)
-                        wolfsId = lis
+                            res += wolf+", "
+                        wolfsId = res
                 value = me.getValue(entry)['elements'][0]
                 lt.addLast(lstInfo,nodeId)
                 lt.addLast(lstInfo,value['location-long'])
                 lt.addLast(lstInfo,value['location-lat'])
                 lt.addLast(lstInfo,commonWolfs)
                 lt.addLast(lstInfo,wolfsId)
+                if lasttrack != nodo:
+                    lt.addLast(lstInfo,nodo)
+                else:
+                    lt.addLast(lstInfo,'Unknown')
                 try:
                     lt.addLast(lstInfo,(gr.getEdge(data_structs['grafoNoDir'],lasttrack,nodo)['weight']))
                 except:
@@ -388,7 +395,9 @@ def req_1(data_structs,initialPoint,destPoint):
             rta = getiFirstandLast(lstReturn,5)
         else:
             rta = lstReturn
-        return totalDist,totalMtps,rta
+        totalNodes = lt.size(lstCamino)
+        
+        return totalNodes-1,trackingPoints,totalDist,totalMtps,rta
 
 def req_2(data_structs, initialStation, destination):
     """
@@ -485,9 +494,87 @@ def req_3(data_structs):
     Función que soluciona el requerimiento 3
     """
     # TODO: Realizar el requerimiento 3
-    pass
-
-
+    sccStruct = scc.KosarajuSCC(data_structs['grafoDir'])
+    numScc = scc.connectedComponents(sccStruct)
+    idSccMap = mp.newMap(maptype='PROBING')
+    for nodo in lt.iterator(mp.keySet(sccStruct['idscc'])):
+        idScc = mp.get(sccStruct['idscc'],nodo)['value']
+        contains = mp.get(idSccMap,idScc)
+        if contains == None:
+            lstNodes = lt.newList('ARRAY_LIST')
+            lt.addLast(lstNodes,nodo)
+            mp.put(idSccMap,idScc,lstNodes)
+        else:
+            lstNodes = me.getValue(contains)
+            lt.addLast(lstNodes,nodo)
+            
+    omSize = om.newMap()
+    for idScc in lt.iterator(mp.keySet(idSccMap)):
+        lstNodes = me.getValue(mp.get(idSccMap,idScc))
+        if lt.size(lstNodes) > 2:
+            info = mp.newMap(maptype='PROBING')
+            mp.put(info,'idScc',idScc)
+            mp.put(info,'nodes',lstNodes)
+            om.put(omSize,lt.size(lstNodes),info)
+    c =0
+    FivemaxManInfo = []
+    while c < 5:
+        minLat = 1000
+        maxLat = 0
+        minLong = 0
+        maxLong = -1000
+        infoScc = []        
+        maxM= om.maxKey(omSize)
+        info = me.getValue(om.get(omSize,maxM))
+        sccId = me.getValue(mp.get(info,'idScc'))
+        lstNodesId = me.getValue(mp.get(info,'nodes'))
+        nodeIds = getIFirstandLast(lstNodesId,3)
+        wolfs = lt.newList('ARRAY_LIST')
+        for nodo in lt.iterator(lstNodesId):
+            entry = mp.get(data_structs['MTPs'],nodo)
+            if entry == None:
+                entry = mp.get(data_structs['individualPoints'],nodo)
+                wolf = me.getValue(entry)['elements'][0]['individual-id']
+                if not lt.isPresent(wolfs,wolf):
+                    lt.addLast(wolfs,wolf)
+            event = me.getValue(entry)['elements'][0]
+            if event['location-lat'] > maxLat:
+                maxLat = event['location-lat']
+            elif event['location-lat'] < minLat:
+                minLat = event['location-lat']
+            if event['location-long'] > maxLong:
+                maxLong = event['location-long']
+            elif event['location-long'] < minLong:
+                minLong = event['location-long']    
+        infoScc.append(sccId)
+        res = ""
+        for Id in nodeIds:
+            res += Id+", "
+        infoScc.append(res)
+        infoScc.append(maxM)
+        infoScc.append(minLat)
+        infoScc.append(maxLat)
+        infoScc.append(minLong)
+        infoScc.append(maxLong)
+        infoScc.append(lt.size(wolfs))
+        lstOflst =[]
+        for lobo in lt.iterator(wolfs):
+            infoLobo = []
+            details = me.getValue(mp.get(data_structs['lobos'],lobo))
+            infoLobo.append(details['individual-id'])
+            infoLobo.append(details['animal-taxon'])
+            infoLobo.append(details['animal-sex'])
+            infoLobo.append(details['animal-life-stage'])
+            infoLobo.append(details['study-site'])
+            lstOflst.append(infoLobo)
+        wolftable = tabulate(lstOflst,headers=['individual-id','animal-taxon','animal-sex','animal-life-stage','study-site'],
+                             tablefmt='grid',maxheadercolwidths=6,maxcolwidths=7,stralign="center")
+        infoScc.append(wolftable)
+        FivemaxManInfo.append(infoScc)
+        om.deleteMax(omSize)
+        c += 1
+    return numScc, FivemaxManInfo
+    
 def req_4(data_structs):
     """
     Función que soluciona el requerimiento 4
@@ -565,6 +652,9 @@ def SortLat(track,mayorLat,menorLat):
     return mayorLat,menorLat
 
 def getiFirstandLast(lst,i):
+    """
+    Retorna una lista DiscLib
+    """
     newLst = lt.newList('ARRAY_LIST')
     lstAux = lt.newList('SINGLE_LINKED')
     for i in range(0,i):
@@ -580,6 +670,9 @@ def getiFirstandLast(lst,i):
     return newLst
 
 def getIFirstandLast(lst,i):
+    """
+    Retorna una lista python a partir de una lista DiscLib
+    """
     newLst = []
     lista = getiFirstandLast(lst,i)
     for elem in lt.iterator(lista):

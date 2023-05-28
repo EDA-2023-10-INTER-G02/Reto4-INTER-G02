@@ -88,8 +88,11 @@ def print_Tabulate_req1(lst):
     for vertex in lt.iterator(lst):
         lstOflst.append(vertex['elements'])
     print(tabulate(lstOflst,headers=["Identificador del punto de encuentro","Location Long","Location Lat","Número de lobos que transitan por el punto",
-    "3 primeros y últimos identificadores de lobos","Distancia al siguiente vértice"],tablefmt='grid',maxheadercolwidths=15))
+    "3 primeros y últimos identificadores de lobos","Siguiente nodo","Distancia al siguiente vértice"],tablefmt='grid',maxheadercolwidths=15,maxcolwidths=15))
 
+def printTabulate_req3(lst):
+    print(tabulate(lst,headers=['SCCID','Node IDs','SCC size','Min Lat','Max Lat','Min Lon','Max Lon','Wolf Count','Wolf Details'],tablefmt='grid',maxheadercolwidths=[5,20,5,5,5,5,5,5],
+                   maxcolwidths=[5,20,5,5,5,5,5,5],numalign="right"))
 
 def print_req_1(control):
     """
@@ -116,7 +119,7 @@ def print_req_3(control):
         Función que imprime la solución del Requerimiento 3 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 3
-    pass
+    return controller.req_3(control)
 
 
 def print_req_4(control):
@@ -192,16 +195,18 @@ if __name__ == "__main__":
                 print('Longitudes: desde '+str(menorlon)+' hasta '+str(mayorlon))
                 print('-> Tiempo de ejecución: '+str(totalTime)+"\n"+"\n"+"Primeros y últimos 5 nodos cargados en el grafo dirigido")
                 printLoadData(control)
-                controller.imprimir_nodo_prueba(control)
+                #controller.imprimir_nodo_prueba(control)
                 print("\n")
                 
             elif int(inputs) == 2:
-                totalDist,Mtps,rta = print_req_1(control)
+                totalNodes,trackingPoints,totalDist,Mtps,rta = print_req_1(control)
                 if rta == []:
                     print('No hay camino')
                 else:
-                    print("\nDistancia total entre punto de origen y destino: "+str(round(totalDist,4)))
-                    print("Total de puntos de encuentro por donde pasan los lobos: " + str(Mtps)+"\n")
+                    print('\nTotal de nodos del camino: '+str(totalNodes))
+                    print("Total de puntos de encuentro: " + str(Mtps))
+                    print('Número de tracking points: ' +str(trackingPoints))
+                    print("Distancia total entre punto de origen y destino: "+str(round(totalDist,4))+str(' km')+"\n")
                     print("Cinco primeros y últimos vértices de la ruta: ")
                     print_Tabulate_req1(rta)
                     print("\n")
@@ -210,7 +215,10 @@ if __name__ == "__main__":
                 print_req_2(control)
 
             elif int(inputs) == 4:
-                print_req_3(control)
+                numScc, FivemaxManInfo =print_req_3(control)
+                print('\nHay ' +str(numScc)+' componentes fuertemente conectados en el grafo')
+                print('Las cinco manadas con mayor dominio sobre el territorio son:\n')
+                printTabulate_req3(FivemaxManInfo)
 
             elif int(inputs) == 5:
                 print_req_4(control)
