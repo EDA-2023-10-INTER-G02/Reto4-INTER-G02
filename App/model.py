@@ -88,6 +88,7 @@ def addWolfsData(data_structs, data):
         lst = lt.newList(datastructure='ARRAY_LIST')
         mp.put(data_structs['orderedData'],data['individual-id'],lst)
 
+
 def add_data(data_structs, data):
     """
     Función para agregar información
@@ -368,11 +369,10 @@ def req_1(data_structs,initialPoint,destPoint):
                     for event in lt.iterator(value):
                         lt.addLast(wolfsIds,event['individual-id'])
                     if lt.size(wolfsIds) > 6:
-                        wolfsId = getIFirstandLast(wolfsIds,3)
-                    else:
-                        res = ""
-                        for wolf in lt.iterator(wolfsIds):
-                            res += wolf+", "
+                        wolfsIds = getiFirstandLast(wolfsIds,3)
+                    res = ""
+                    for wolf in lt.iterator(wolfsIds):
+                        res += wolf+", "
                         wolfsId = res
                 value = me.getValue(entry)['elements'][0]
                 lt.addLast(lstInfo,nodeId)
@@ -395,8 +395,7 @@ def req_1(data_structs,initialPoint,destPoint):
             rta = getiFirstandLast(lstReturn,5)
         else:
             rta = lstReturn
-        totalNodes = lt.size(lstCamino)
-        
+        totalNodes = lt.size(lstCamino) 
         return totalNodes-1,trackingPoints,totalDist,totalMtps,rta
 
 def req_2(data_structs, initialStation, destination):
@@ -547,10 +546,17 @@ def req_3(data_structs):
             elif event['location-long'] < minLong:
                 minLong = event['location-long']    
         infoScc.append(sccId)
-        res = ""
+        res = []
+        p =0
         for Id in nodeIds:
-            res += Id+", "
-        infoScc.append(res)
+            lst = [Id]
+            res.append(lst)
+            p+= 1
+            if p ==3:
+                pt = ['...']
+                res.append(pt)
+        print(tabulate(res,tablefmt="plain")) 
+        infoScc.append(tabulate(res,tablefmt="plain"))
         infoScc.append(maxM)
         infoScc.append(minLat)
         infoScc.append(maxLat)
@@ -567,8 +573,8 @@ def req_3(data_structs):
             infoLobo.append(details['animal-life-stage'])
             infoLobo.append(details['study-site'])
             lstOflst.append(infoLobo)
-        wolftable = tabulate(lstOflst,headers=['individual-id','animal-taxon','animal-sex','animal-life-stage','study-site'],
-                             tablefmt='grid',maxheadercolwidths=6,maxcolwidths=7,stralign="center")
+        wolftable = tabulate(lstOflst,headers=['indiv-id','wolf taxon','wolf sex','life-stage','study-site'],
+                             tablefmt='grid',maxheadercolwidths=5,maxcolwidths=5,stralign="center")
         infoScc.append(wolftable)
         FivemaxManInfo.append(infoScc)
         om.deleteMax(omSize)

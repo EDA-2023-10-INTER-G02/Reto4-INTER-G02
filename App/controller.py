@@ -52,7 +52,7 @@ def load_data(control, filename):
     tracksfile = cf.data_dir + filename
     input_file = csv.DictReader(open(tracksfile, encoding="utf-8"), delimiter=",")
     
-    wolfsFile = cf.data_dir + 'wolfs/BA-Grey-Wolf-individuals-utf8-small.csv'
+    wolfsFile = cf.data_dir + 'wolfs/BA-Grey-Wolf-individuals-utf8-large.csv'
     input_fileWolfs = csv.DictReader(open(wolfsFile, encoding="utf-8"), delimiter=",")
     timeI = get_time()
     for wolf in input_fileWolfs:

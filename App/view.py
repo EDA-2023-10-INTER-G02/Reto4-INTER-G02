@@ -91,8 +91,8 @@ def print_Tabulate_req1(lst):
     "3 primeros y últimos identificadores de lobos","Siguiente nodo","Distancia al siguiente vértice"],tablefmt='grid',maxheadercolwidths=15,maxcolwidths=15))
 
 def printTabulate_req3(lst):
-    print(tabulate(lst,headers=['SCCID','Node IDs','SCC size','Min Lat','Max Lat','Min Lon','Max Lon','Wolf Count','Wolf Details'],tablefmt='grid',maxheadercolwidths=[5,20,5,5,5,5,5,5],
-                   maxcolwidths=[5,20,5,5,5,5,5,5],numalign="right"))
+    print(tabulate(lst,headers=['SCCID','Node IDs','SCC size','Min Lat','Max Lat','Min Lon','Max Lon','Wolf Count','Wolf Details'],tablefmt='grid',maxheadercolwidths=[2,28,3,5,5,5,5,5],
+                   maxcolwidths=[2,28,3,5,5,5,5,5],numalign="right"))
 
 def print_req_1(control):
     """
