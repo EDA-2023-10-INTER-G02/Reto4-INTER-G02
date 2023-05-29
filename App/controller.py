@@ -129,12 +129,21 @@ def req_3(control):
     
 
 
-def req_4(control):
+def req_4(control, ini, fin):
     """
     Retorna el resultado del requerimiento 4
     """
     # TODO: Modificar el requerimiento 4
-    pass
+    ini= ini.replace('(', '')
+    ini= ini.replace(')', '')
+    ini= ini.replace(',', '')
+    ini= ini.split()
+    fin= fin.replace('(', '')
+    fin= fin.replace(')', '')
+    fin= fin.replace(',', '')
+    fin= fin.split()
+    return model.req_4(control, ini, fin)
+
 
 
 def req_5(control):

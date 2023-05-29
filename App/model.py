@@ -51,6 +51,7 @@ import math
 assert cf
 import sys
 from tabulate import tabulate
+from math import sin, cos, sqrt, atan2, radians
 default_limit = 1000
 sys.setrecursionlimit(default_limit*10000)
 
@@ -589,13 +590,111 @@ def req_3(data_structs):
         c += 1
     return numScc, FivemaxManInfo
     
-def req_4(data_structs):
+def req_4(data_structs, ini, fin):
     """
     Función que soluciona el requerimiento 4
     """
     # TODO: Realizar el requerimiento 4
-    pass
+    longini= float(ini[0])
+    latini= float(ini[1])
+    longfin= float(fin[0])
+    latfin= float(fin[1])
+    dist_menor_ini=9999999999
+    mapa= data_structs['MTPs']
+    keys= mp.keySet(mapa)
+    ino=''
+    dest=''
+    for llave in lt.iterator(keys):
+        lista_mtp= mp.get(mapa, llave)
+        lista_mtp= me.getValue(lista_mtp)
+        info= lt.getElement(lista_mtp, 1)
+        long2=info['location-long']
+        lat2= info['location-lat']
+        dist= haversine(latini, longini, lat2, long2)
+        if dist==0:
+            continue
+        if dist<dist_menor_ini:
+            dist_menor_ini=dist
+            ino=llave
+    dist_menor_dest=999999999
+    for llave in lt.iterator(keys):
+            lista_mtp= mp.get(mapa, llave)
+            lista_mtp= me.getValue(lista_mtp)
+            info= lt.getElement(lista_mtp, 1)
+            long2=info['location-long']
+            lat2= info['location-lat']
+            dist= haversine( lat2, long2, latfin, longfin)
+            if dist==0:
+                continue
+            if dist<dist_menor_dest:
+                dist_menor_dest=dist
+                dest= llave
+    paths= djk.Dijkstra(data_structs['grafoDir'], ino)
+    hay_path= djk.hasPathTo(paths, dest)
+    path = djk.pathTo(paths, dest)
+    '''print(ino)
+    print(dest)
+    print(path)'''
+    lista_camino= lt.newList('ARRAY_LIST')
+    lista_gathering= lt.newList('ARRAY_LIST')
+    lista_camino2= lt.newList('ARRAY_LIST')
+    dist_tot=0
+    if path is not None:
+        num_vert = st.size(path)
+        while (not st.isEmpty(path)):
+            stop = st.pop(path)
+            lt.addLast(lista_camino, stop)
+    for info in lt.iterator(lista_camino):
+        lista= []
+        src_node_id= info['vertexA']
+        tgt_node_id= info['vertexB']
+        dist= info[ 'weight']
+        dist_tot+= info[ 'weight']
+        src_count=src_node_id.count('_')
+        tgt_count=tgt_node_id.count('_')
+        if src_count==1:
+            info_stop = mp.get(data_structs['MTPs'],src_node_id)
+            info= me.getValue(info_stop)['elements'][1]
+            longsrc= info['location-long']
+            latsrc=info['location-lat']
+        else:
+            info_stop=mp.get(data_structs['individualPoints'], src_node_id)
+            info= me.getValue(info_stop)
+            longsrc= info['elements'][0]['location-long']
+            latsrc=info['elements'][0]['location-lat']
+        if tgt_count==1:
+            info_stop = mp.get(data_structs['MTPs'],tgt_node_id)
+            info= me.getValue(info_stop)['elements'][1]
+            longtgt= info['location-long']
+            lattgt=info['location-lat']
+        else:
+            info_stop=mp.get(data_structs['individualPoints'], tgt_node_id)
+            info= me.getValue(info_stop)
+            longtgt= info['elements'][0]['location-long']
+            lattgt=info['elements'][0]['location-lat']
+        lista.append(src_node_id)
+        lista.append(latsrc)
+        lista.append(longsrc)
+        lista.append(tgt_node_id)
+        lista.append(lattgt) 
+        lista.append(longtgt) 
+        lista.append(dist)
+        lt.addLast(lista_camino2, lista)
+    print(lista_camino2)
+    '''hay= mp.get(mapa,'m111p866_57p451')
+    print(hay)'''
+    #print(dist_menor_dest, dist_menor_ini, dest, ino)
+        
 
+def haversine(lat1, lon1, lat2, lon2):
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    R = 6371
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    distance = R * c
+    return distance
 
 def req_5(data_structs):
     """
