@@ -508,7 +508,10 @@ def req_4(data_structs, ini, fin):
             if dist<dist_menor_dest:
                 dist_menor_dest=dist
                 dest= llave
-    print(dest)
+    paths= djk.Dijkstra(data_structs['grafoDir'], ino)
+    hay_path= djk.hasPathTo(paths, dest)
+    path = djk.pathTo(paths, dest)
+    print(path)
     '''hay= mp.get(mapa,'m111p866_57p451')
     print(hay)'''
     #print(dist_menor_dest, dist_menor_ini, dest, ino)
