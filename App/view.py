@@ -107,7 +107,15 @@ def print_req_2(control):
     # TODO: Imprimir el resultado del requerimiento 2
     ini= input('Nodo inicial')
     fin= input('Nodo final')
-    print(controller.req_2(control, ini, fin))
+    lista_camino2, num_gathering, num_vert, num_track, edges, tot_dist=controller.req_2(control, ini, fin)
+    print('El total de nodos en el camino es ' + str(num_vert))
+    print('El total de puntos de encuentro es ' + str(num_gathering))
+    print( 'El total de puntos de seguimiento es '+ str(num_track) )
+    print('La distancia total es de ' + str(tot_dist)+ (' km'))
+    print('Cantidad nodos camino BFS ' + str(num_vert))
+    print('Cantidad arcos camino BFS ' + str(edges))
+    table= []
+    print(lista_camino2)
 
 
 

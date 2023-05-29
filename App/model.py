@@ -437,11 +437,10 @@ def req_2(data_structs, initialStation, destination):
                 else:
                         info_stop=mp.get(data_structs['individualPoints'], cada_nodo)
                         info= me.getValue(info_stop)
-                        tot_dist+= gr.getEdge(data_structs['grafoDir'],ult_nodo,cada_nodo)['weight']
                         individual_count= 1
                         long= info['elements'][0]['location-long']
                         lat=info['elements'][0]['location-lat']
-                        ady=1
+                        ady=[1]
                 if cada_nodo!=destination:
                         edge_to= lt.getElement(lista_camino, i)
                 else:
@@ -456,7 +455,14 @@ def req_2(data_structs, initialStation, destination):
                 lista_stop.append(edge_to)
                 lista_stop.append(dist)
                 lt.addLast(lista_camino2,lista_stop)
-    return lista_camino2
+    num_track= num_vert - num_gathering
+    edges= num_vert- 1
+    tot_dist= round(tot_dist, 4)
+    if lt.size(lista_camino2) > 10:
+        lista_camino2 = getiFirstandLast(lista_camino2,5)
+    else:
+        lista_camino2 = lista_camino2
+    return lista_camino2, num_gathering, num_vert, num_track, edges, tot_dist
 
 
 def req_3(data_structs):
