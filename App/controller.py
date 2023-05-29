@@ -149,8 +149,11 @@ def req_6(control,animal_sex, ini, fin):
     Retorna el resultado del requerimiento 6
     """
     # TODO: Modificar el requerimiento 6
-    ini= datetime.datetime.strptime(ini,'%Y/%m/%d %H:%M')
-    fin= datetime.datetime.strptime(fin,'%Y/%m/%d %H:%M')
+    ini = '2013-02-16 00:00'
+    fin =  '2014-10-23 23:59'
+    animal_sex = 'f'
+    ini= datetime.datetime.strptime(ini,'%Y-%m-%d %H:%M')
+    fin= datetime.datetime.strptime(fin,'%Y-%m-%d %H:%M')
     return model.req_6(control,animal_sex, ini, fin)
     
 

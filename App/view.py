@@ -94,6 +94,13 @@ def printTabulate_req3(lst):
     print(tabulate(lst,headers=['SCCID','Node IDs','SCC size','Min Lat','Max Lat','Min Lon','Max Lon','Wolf Count','Wolf Details'],tablefmt='grid',maxheadercolwidths=[2,28,3,5,5,5,5,5],
                    maxcolwidths=[2,28,3,5,5,5,5,5],numalign="right"))
 
+def printTabulateWolfInfo(lst):
+    print(tabulate([lst],headers=['individual-id','animal-taxon','animal-life-stage','animal-sex','study-site','travel-dist','deployment-comments'],tablefmt='grid',maxheadercolwidths=20,maxcolwidths=20))
+
+def printTabulatePathInfo(lst):
+    print(tabulate(lst,headers=['node-id','location long','location lat','individual-id','wolf count'],tablefmt='grid',maxheadercolwidths=30,maxcolwidths=30))
+    
+    
 def print_req_1(control):
     """
         Función que imprime la solución del Requerimiento 1 en consola
@@ -143,10 +150,25 @@ def print_req_6(control):
         Función que imprime la solución del Requerimiento 6 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 6
-    animal_sex= input('El sexo registrado del animal ')
-    ini= input('Fecha inicial')
-    fin= input('Fecha final')
-    a= controller.req_6(control, animal_sex, ini, fin)
+    animal_sex= input('El sexo registrado del animal: ')
+    ini= input('Fecha inicial: ')
+    fin= input('Fecha final: ')
+    wolfMaxDist, maxWolfInfo, pathInfoMax,wolfMinDist,minWolfInfo,pathInfoMin = controller.req_6(control, animal_sex, ini, fin)
+    print('\n--------- Parte 1 ---------')
+    print('El individuo con mayor recorrido fue: ' +wolfMaxDist)
+    printTabulateWolfInfo(maxWolfInfo)
+    totalNodes, totalEdges, nodesInfo = pathInfoMax
+    print('El camino más largo para el lobo ' +wolfMaxDist+' tiene: \nTotal de nodos: '+str(totalNodes)+'\nTotal de arcos: '+str(totalEdges))
+    print('Detalles del camino con los tres primeros y últimos nodos: ')
+    printTabulatePathInfo(nodesInfo)
+    print('\n--------- Parte 2 ---------')
+    print('El individuo con menor recorrido fue: ' +wolfMinDist)
+    printTabulateWolfInfo(minWolfInfo)
+    totalNodes, totalEdges, nodesInfo = pathInfoMin
+    print('El camino más largo para el lobo ' +wolfMinDist+' tiene: \nTotal de nodos: '+str(totalNodes)+'\nTotal de arcos: '+str(totalEdges))
+    print('Detalles del camino con los tres primeros y últimos nodos: ')
+    printTabulatePathInfo(nodesInfo)
+    print('\n')
 
 
 def print_req_7(control):

@@ -647,9 +647,31 @@ def req_6(data_structs,animal_sex, ini, fin):
                     por_anio= lt.newList('ARRAY_LIST')
                     lt.addLast(por_anio, inf)
                     mp.put(mapa_filt,lobo, por_anio)
-    print(mapa_filt)
-
-
+                    
+    omDist = om.newMap()
+    for wolf in lt.iterator(mp.keySet(mapa_filt)):
+        distance = 0
+        lstEvents = me.getValue(mp.get(mapa_filt,wolf))
+        lasttrack = None
+        for event in lt.iterator(lstEvents):
+            if lasttrack != None:
+                startP = lasttrack['node-id']
+                destP = event['node-id']
+                distance += gr.getEdge(data_structs['grafoDir'],startP,destP)['weight']
+            lasttrack = event
+        om.put(omDist,distance,lstEvents)
+     
+    maxDist = om.maxKey(omDist)        
+    minDist = om.minKey(omDist) 
+    wolfMaxDist = me.getValue(om.get(omDist,maxDist))['elements'][0]['individual-id']
+    wolfMinDist = me.getValue(om.get(omDist,minDist))['elements'][0]['individual-id']
+    maxWolfInfo = ObtainWolfInfo(data_structs,wolfMaxDist,maxDist)
+    minWolfInfo = ObtainWolfInfo(data_structs,wolfMinDist,minDist)
+    #segunda parte
+    pathInfoMax = pathInfo(data_structs,omDist,wolfMaxDist,maxDist)
+    pathInfoMin = pathInfo(data_structs,omDist,wolfMinDist,minDist)
+    
+    return wolfMaxDist, maxWolfInfo, pathInfoMax,wolfMinDist,minWolfInfo,pathInfoMin
 
 def req_7(data_structs):
     """
@@ -730,3 +752,37 @@ def getIFirstandLast(lst,i):
     for elem in lt.iterator(lista):
         newLst.append(elem)
     return newLst
+
+def ObtainWolfInfo(data_structs, wolfId,dist):
+    """
+    Retorna una lista de listas con la info del lobo
+    """
+    details = me.getValue(mp.get(data_structs['lobos'],wolfId))
+    dist =  round(dist,3)
+    lstOfLst = [wolfId,details['animal-taxon'],details['animal-life-stage'],details['animal-sex'],details['study-site'],
+                str(dist),details['deployment-comments']]
+    return lstOfLst         
+   
+def pathInfo(data_structs,omMap,Id,dist):
+    totalNodes =  lt.size(me.getValue(om.get(omMap,dist)))
+    totalEdges = totalNodes-1
+    nodes = getIFirstandLast(me.getValue(om.get(omMap,dist)),3)
+    nodeInfo = nodesInfo(nodes,data_structs)
+    return totalNodes, totalEdges, nodeInfo
+    
+def nodesInfo(lstTracks,data_struct):
+    lstOflst = []
+    for track in lstTracks:
+        entry = mp.get(data_struct['individualPoints'],track['node-id'])
+        wolfs = me.getValue(entry)['elements'][0]['individual-id']
+        if entry == None:
+            entry = mp.get(data_struct['MTPs'],track['node-id'])
+            wolfs = []
+            for ev in lt.iterator(me.getValue(entry)):
+                wolfs.append(ev['individual-id'])
+            
+        value = me.getValue(entry)
+        event = me.getValue(entry)['elements'][0]
+        lstInfo = [event['node-id'],event['location-long'],event['location-lat'],wolfs,lt.size(value)]
+        lstOflst.append(lstInfo)
+    return lstOflst
