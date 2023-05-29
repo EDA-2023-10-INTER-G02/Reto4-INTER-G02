@@ -115,7 +115,10 @@ def print_req_2(control):
     print('Cantidad nodos camino BFS ' + str(num_vert))
     print('Cantidad arcos camino BFS ' + str(edges))
     table= []
-    print(lista_camino2)
+    headers= 'location-log-aprox','location-lat-aprox', 'node-id', 'individual-id', 'individual-count','edge-to', 'edge-distance-km'
+    for coor in lt.iterator(lista_camino2):
+        table.append([coor[0], coor[1], coor[2], coor[3],coor[4],coor[5], coor[6]])
+    print(tabulate(table,headers=headers,tablefmt='grid',maxcolwidths= 11, maxheadercolwidths= 11))
 
 
 
