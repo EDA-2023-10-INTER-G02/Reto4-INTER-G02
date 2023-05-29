@@ -639,14 +639,15 @@ def req_6(data_structs,animal_sex, ini, fin):
             fecha= inf['timestamp']
             fecha= datetime.datetime.strptime(fecha,'%Y-%m-%d %H:%M')
             if fecha > ini and fecha< fin:
-                if om.contains(mapa_filt, lobo):
-                    por_fecha=om.get(mapa_filt, lobo)
+                if mp.contains(mapa_filt, lobo):
+                    por_fecha=mp.get(mapa_filt, lobo)
                     por_fecha=me.getValue(por_fecha)
                     lt.addLast(por_fecha, inf)
-            else:
-                por_anio= lt.newList('ARRAY_LIST')
-                lt.addLast(por_anio, inf)
-    print(lista_lobos)
+                else:
+                    por_anio= lt.newList('ARRAY_LIST')
+                    lt.addLast(por_anio, inf)
+                    mp.put(mapa_filt,lobo, por_anio)
+    print(mapa_filt)
 
 
 
