@@ -108,9 +108,21 @@ def print_req_2(control):
         Función que imprime la solución del Requerimiento 2 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 2
-    ini= input('Nodo inicial')
-    fin= input('Nodo final')
-    print(controller.req_2(control, ini, fin))
+    ini= input('Ingrese el Identificador del punto de encuentro de origen: ')
+    fin= input('Ingrese el Identificador del punto de encuentro de destino: ')
+    lista_camino2, num_gathering, num_vert, num_track, edges, tot_dist=controller.req_2(control, ini, fin)
+    print('El total de nodos en el camino es ' + str(num_vert))
+    print('El total de puntos de encuentro es ' + str(num_gathering))
+    print( 'El total de puntos de seguimiento es '+ str(num_track) )
+    print('La distancia total es de ' + str(tot_dist)+ (' km'))
+    print('Cantidad nodos camino BFS ' + str(num_vert))
+    print('Cantidad arcos camino BFS ' + str(edges))
+    table= []
+    headers= 'location-log-aprox','location-lat-aprox', 'node-id', 'individual-id', 'individual-count','edge-to', 'edge-distance-km'
+    for coor in lt.iterator(lista_camino2):
+        table.append([coor[0], coor[1], coor[2], coor[3],coor[4],coor[5], coor[6]])
+    print(tabulate(table,headers=headers,tablefmt='grid',maxcolwidths= 11, maxheadercolwidths= 11))
+
 
 
 

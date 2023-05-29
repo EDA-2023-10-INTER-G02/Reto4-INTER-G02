@@ -440,32 +440,40 @@ def req_2(data_structs, initialStation, destination):
                 i+=1
                 lista_stop= []
                 node_id= cada_nodo
-                cant_= stop.count('_')
-                if cant_==1:
-                    num_gathering+=1
-                    individual_count= gr.adjacentEdges(data_structs['grafoDir'],stop)
-                    info_stop=mp.get(data_structs['individualPoints'], cada_nodo)
-                    info= me.getValue(info_stop)['elements'][0]
-                    long= info['location-long']
-                    lat=info['location-lat']
-                    ady= gr.adjacentEdges(data_structs['grafoDir'],cada_nodo)
-                else:
-                    info_stop=mp.get(data_structs['individualPoints'], cada_nodo)
-                    info= me.getValue(info_stop)
-                    individual_count= 1
-                    long= info['location-long']
-                    lat=info['location-lat']
-                    ady=1
-                if ult_nodo!= None:
-                    tot_dist+= gr.getEdge(data_structs['grafoDir'],ult_nodo,cada_nodo)['weight']
-                    dist= gr.getEdge(data_structs['grafoDir'],ult_nodo,stop)['weight']
+                if ult_nodo!= None and cada_nodo!= destination:
+                    tot_dist+= gr.getEdge(data_structs['grafoDir'],cada_nodo, lt.getElement(lista_camino, i))['weight']
+                    dist= gr.getEdge(data_structs['grafoDir'],cada_nodo,lt.getElement(lista_camino, i))['weight']      
                 else:
                     dist= 0.0
+                cant_= cada_nodo.count('_')
+                if cant_==1:
+                    num_gathering+=1
+                    individual_count0=gr.adjacentEdges(data_structs['grafoDir'],cada_nodo)
+                    individual_count= lt.size(individual_count0)
+                    info_stop = mp.get(data_structs['MTPs'],cada_nodo)
+                    info= me.getValue(info_stop)['elements'][1]
+                    long= info['location-long']
+                    lat=info['location-lat']
+                    lista_ady=[]
+                    for ady1 in lt.iterator(individual_count0):
+                        ad= ady1['vertexB']
+                        info_stop=mp.get(data_structs['individualPoints'], ad)
+                        info= me.getValue(info_stop)
+                        ady2= info['elements'][0]['individual-id']
+                        lista_ady.append(ady2)
+                    ady= lista_ady
+                else:
+                        info_stop=mp.get(data_structs['individualPoints'], cada_nodo)
+                        info= me.getValue(info_stop)
+                        individual_count= 1
+                        long= info['elements'][0]['location-long']
+                        lat=info['elements'][0]['location-lat']
+                        ady= info['elements'][0]['individual-id']
                 if cada_nodo!=destination:
                         edge_to= lt.getElement(lista_camino, i)
                 else:
-                    ady= 'Unknown'
-                    adge_to ='Unknown'
+                    dist= 'Unknown'
+                    edge_to='Unknown'
                 ult_nodo= cada_nodo
                 lista_stop.append(long)
                 lista_stop.append(lat)
@@ -475,34 +483,15 @@ def req_2(data_structs, initialStation, destination):
                 lista_stop.append(edge_to)
                 lista_stop.append(dist)
                 lt.addLast(lista_camino2,lista_stop)
-    print(lista_camino2)
-    """#dist= gr.getEdge(data_structs['grafoDir'],ult_nodo,stop)['weight']
-                cant_= stop.count('_')
-                if cant_==1:
-                    num_gathering+=1
-                if stop!=destination:
-                        ady= gr.adjacentEdges(data_structs['grafoDir'],stop)
-                else:
-                    ady= 'Unknown'
-                    adge_to ='Unknown'
-                ult_nodo= stop
-            lt.addLast(lista_camino2, lista_stop)
-            '''lista_stop= []
-                if ult_nodo!= None:
-                    tot_dist+= gr.getEdge(data_structs['grafoDir'],ult_nodo,stop)['weight']
-                    dist= gr.getEdge(data_structs['grafoDir'],ult_nodo,stop)['weight']
-                cant_= stop.count('_')
-                if cant_==1:
-                    num_gathering+=1
-                    if stop!=destination:
-                        print(gr.adjacentEdges(data_structs['grafoDir'],stop))
-                ult_nodo= stop
-                lt.addLast(lista_camino, stop)'''
-    print(tot_dist)
-    num_edge= num_vert-1
+    num_track= num_vert - num_gathering
+    edges= num_vert- 1
     tot_dist= round(tot_dist, 4)
-    num_vert2= num_vert-num_gathering
-    return lista_camino, num_vert, num_edge, num_vert2, num_gathering, tot_dist"""
+    if lt.size(lista_camino2) > 10:
+        lista_camino2 = getiFirstandLast(lista_camino2,5)
+    else:
+        lista_camino2 = lista_camino2
+    return lista_camino2, num_gathering, num_vert, num_track, edges, tot_dist
+
 
 
 
