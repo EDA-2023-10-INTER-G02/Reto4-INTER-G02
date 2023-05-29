@@ -51,8 +51,8 @@ import math
 assert cf
 import sys
 from tabulate import tabulate
-default_limit = 1000
-sys.setrecursionlimit(default_limit*10)
+default_limit = 10000
+sys.setrecursionlimit(default_limit*100)
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá
@@ -554,8 +554,7 @@ def req_3(data_structs):
             p+= 1
             if p ==3:
                 pt = ['...']
-                res.append(pt)
-        print(tabulate(res,tablefmt="plain")) 
+                res.append(pt) 
         infoScc.append(tabulate(res,tablefmt="plain"))
         infoScc.append(maxM)
         infoScc.append(minLat)
@@ -564,6 +563,8 @@ def req_3(data_structs):
         infoScc.append(maxLong)
         infoScc.append(lt.size(wolfs))
         lstOflst =[]
+        if lt.size(wolfs) > 6:
+            wolfs = getiFirstandLast(wolfs,3)
         for lobo in lt.iterator(wolfs):
             infoLobo = []
             details = me.getValue(mp.get(data_structs['lobos'],lobo))
