@@ -82,6 +82,24 @@ def new_data_structs():
 # Funciones para agregar informacion al modelo
 def addWolfsData(data_structs, data):
     data['individual-id'] = data['animal-id'] + "_" + data['tag-id']
+    if data['deploy-off-date']== '':
+        data['deploy-off-date']= 'Unknown'
+    if data['animal-death-comments']== '':
+        data['animal-death-comments']= 'Unknown'
+    if data['animal-life-stage']== '':
+        data['animal-life-stage']='Unknown'
+    if data['animal-sex']== '':
+        data['animal-sex']= 'Unknown'
+    if data['deployment-comments']== '':
+        data['deployment-comments']= 'Unknown'
+    if data['study-site']=='':
+        data['study-site']= 'Unknown'
+    if data['tag-beacon-frequency']=='':
+        data['tag-beacon-frequency']= 'Unknown'
+    if data['tag-mass']=='':
+        data['tag-mass']= 'Unknown'
+    if data['tag-model']=='':
+        data['tag-model']= 'Unknown'
     mp.put(data_structs['lobos'],data['individual-id'],data)
     entry = mp.get(data_structs['orderedData'],data['individual-id'])
     if entry is None:
