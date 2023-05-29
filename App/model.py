@@ -48,6 +48,7 @@ from DISClib.Algorithms.Sorting import mergesort as merg
 from DISClib.Algorithms.Sorting import quicksort as quk
 import datetime
 import math
+from math import sin, cos, sqrt, atan2, radians
 assert cf
 import sys
 default_limit = 1000
@@ -414,32 +415,38 @@ def req_2(data_structs, initialStation, destination):
                 i+=1
                 lista_stop= []
                 node_id= cada_nodo
-                cant_= stop.count('_')
-                if cant_==1:
-                    num_gathering+=1
-                    individual_count= gr.adjacentEdges(data_structs['grafoDir'],stop)
-                    info_stop=mp.get(data_structs['individualPoints'], cada_nodo)
-                    info= me.getValue(info_stop)['elements'][0]
-                    long= info['location-long']
-                    lat=info['location-lat']
-                    ady= gr.adjacentEdges(data_structs['grafoDir'],cada_nodo)
-                else:
-                    info_stop=mp.get(data_structs['individualPoints'], cada_nodo)
-                    info= me.getValue(info_stop)
-                    individual_count= 1
-                    long= info['location-long']
-                    lat=info['location-lat']
-                    ady=1
-                if ult_nodo!= None:
-                    tot_dist+= gr.getEdge(data_structs['grafoDir'],ult_nodo,cada_nodo)['weight']
-                    dist= gr.getEdge(data_structs['grafoDir'],ult_nodo,stop)['weight']
+                if ult_nodo!= None and cada_nodo!= destination:
+                    tot_dist+= gr.getEdge(data_structs['grafoDir'],cada_nodo, lt.getElement(lista_camino, i))['weight']
+                    dist= gr.getEdge(data_structs['grafoDir'],cada_nodo,lt.getElement(lista_camino, i))['weight']      
                 else:
                     dist= 0.0
+                cant_= cada_nodo.count('_')
+                if cant_==1:
+                    num_gathering+=1
+                    individual_count0=gr.adjacentEdges(data_structs['grafoDir'],cada_nodo)
+                    individual_count= lt.size(individual_count0)
+                    info_stop = mp.get(data_structs['MTPs'],cada_nodo)
+                    info= me.getValue(info_stop)['elements'][1]
+                    long= info['location-long']
+                    lat=info['location-lat']
+                    lista_ady=[]
+                    for ady1 in lt.iterator(individual_count0):
+                        ad= ady1['vertexB']
+                        lista_ady.append(ad)
+                    ady= lista_ady
+                else:
+                        info_stop=mp.get(data_structs['individualPoints'], cada_nodo)
+                        info= me.getValue(info_stop)
+                        tot_dist+= gr.getEdge(data_structs['grafoDir'],ult_nodo,cada_nodo)['weight']
+                        individual_count= 1
+                        long= info['elements'][0]['location-long']
+                        lat=info['elements'][0]['location-lat']
+                        ady=1
                 if cada_nodo!=destination:
                         edge_to= lt.getElement(lista_camino, i)
                 else:
-                    ady= 'Unknown'
-                    adge_to ='Unknown'
+                    dist= 'Unknown'
+                    edge_to='Unknown'
                 ult_nodo= cada_nodo
                 lista_stop.append(long)
                 lista_stop.append(lat)
@@ -449,35 +456,7 @@ def req_2(data_structs, initialStation, destination):
                 lista_stop.append(edge_to)
                 lista_stop.append(dist)
                 lt.addLast(lista_camino2,lista_stop)
-    print(lista_camino2)
-    """#dist= gr.getEdge(data_structs['grafoDir'],ult_nodo,stop)['weight']
-                cant_= stop.count('_')
-                if cant_==1:
-                    num_gathering+=1
-                if stop!=destination:
-                        ady= gr.adjacentEdges(data_structs['grafoDir'],stop)
-                else:
-                    ady= 'Unknown'
-                    adge_to ='Unknown'
-                ult_nodo= stop
-            lt.addLast(lista_camino2, lista_stop)
-            '''lista_stop= []
-                if ult_nodo!= None:
-                    tot_dist+= gr.getEdge(data_structs['grafoDir'],ult_nodo,stop)['weight']
-                    dist= gr.getEdge(data_structs['grafoDir'],ult_nodo,stop)['weight']
-                cant_= stop.count('_')
-                if cant_==1:
-                    num_gathering+=1
-                    if stop!=destination:
-                        print(gr.adjacentEdges(data_structs['grafoDir'],stop))
-                ult_nodo= stop
-                lt.addLast(lista_camino, stop)'''
-    print(tot_dist)
-    num_edge= num_vert-1
-    tot_dist= round(tot_dist, 4)
-    num_vert2= num_vert-num_gathering
-    return lista_camino, num_vert, num_edge, num_vert2, num_gathering, tot_dist"""
-
+    return lista_camino2
 
 
 def req_3(data_structs):
@@ -488,13 +467,62 @@ def req_3(data_structs):
     pass
 
 
-def req_4(data_structs):
+def req_4(data_structs, ini, fin):
     """
     Función que soluciona el requerimiento 4
     """
     # TODO: Realizar el requerimiento 4
-    pass
+    longini= float(ini[0])
+    latini= float(ini[1])
+    longfin= float(fin[0])
+    latfin= float(fin[1])
+    dist_menor_ini=9999999999
+    mapa= data_structs['MTPs']
+    keys= mp.keySet(mapa)
+    ino=''
+    dest=''
+    for llave in lt.iterator(keys):
+        lista_mtp= mp.get(mapa, llave)
+        lista_mtp= me.getValue(lista_mtp)
+        info= lt.getElement(lista_mtp, 1)
+        long2=info['location-long']
+        lat2= info['location-lat']
+        dist= haversine(latini, longini, lat2, long2)
+        if dist==0:
+            continue
+        if dist<dist_menor_ini:
+            dist_menor_ini=dist
+            ino=llave
+    dist_menor_dest=999999999
+    for llave in lt.iterator(keys):
+            print(llave)
+            lista_mtp= mp.get(mapa, llave)
+            lista_mtp= me.getValue(lista_mtp)
+            info= lt.getElement(lista_mtp, 1)
+            long2=info['location-long']
+            lat2= info['location-lat']
+            dist= haversine( lat2, long2, latfin, longfin)
+            print(dist)
+            if dist==0:
+                continue
+            if dist<dist_menor_dest:
+                dist_menor_dest=dist
+                dest= llave
+    print(dest)
+    '''hay= mp.get(mapa,'m111p866_57p451')
+    print(hay)'''
+    #print(dist_menor_dest, dist_menor_ini, dest, ino)
+        
 
+def haversine(lat1, lon1, lat2, lon2):
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    R = 6371
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    distance = R * c
+    return distance
 
 def req_5(data_structs):
     """
