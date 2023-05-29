@@ -598,12 +598,38 @@ def req_5(data_structs):
     pass
 
 
-def req_6(data_structs):
+def req_6(data_structs,animal_sex, ini, fin):
     """
     Función que soluciona el requerimiento 6
     """
     # TODO: Realizar el requerimiento 6
-    pass
+    lista_lobos= lt.newList('ARRAY_LIST')
+    lbs= data_structs['lobos']
+    keys= mp.keySet(lbs)
+    mapa_filt= mp.newMap(maptype='CHAINING')
+    for lobo in lt.iterator(keys):
+        entry= mp.get(lbs, lobo)
+        info= me.getValue(entry)
+        a_s= info['animal-sex']
+        if a_s == animal_sex:
+            lt.addLast(lista_lobos,lobo )
+    mapa= data_structs['orderedData']
+    for lobo in lt.iterator(lista_lobos):
+        entry= mp.get(mapa, lobo)
+        info= me.getValue(entry)
+        for inf in lt.iterator(info):
+            fecha= inf['timestamp']
+            fecha= datetime.datetime.strptime(fecha,'%Y-%m-%d %H:%M')
+            if fecha > ini and fecha< fin:
+                if om.contains(mapa_filt, lobo):
+                    por_fecha=om.get(mapa_filt, lobo)
+                    por_fecha=me.getValue(por_fecha)
+                    lt.addLast(por_fecha, inf)
+            else:
+                por_anio= lt.newList('ARRAY_LIST')
+                lt.addLast(por_anio, inf)
+    print(lista_lobos)
+
 
 
 def req_7(data_structs):

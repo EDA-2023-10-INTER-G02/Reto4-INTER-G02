@@ -143,7 +143,10 @@ def print_req_6(control):
         Función que imprime la solución del Requerimiento 6 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 6
-    pass
+    animal_sex= input('El sexo registrado del animal ')
+    ini= input('Fecha inicial')
+    fin= input('Fecha final')
+    a= controller.req_6(control, animal_sex, ini, fin)
 
 
 def print_req_7(control):

@@ -26,7 +26,7 @@ import time
 import csv
 import tracemalloc
 from DISClib.ADT import graph as gr
-
+import datetime
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
@@ -144,12 +144,15 @@ def req_5(control):
     # TODO: Modificar el requerimiento 5
     pass
 
-def req_6(control):
+def req_6(control,animal_sex, ini, fin):
     """
     Retorna el resultado del requerimiento 6
     """
     # TODO: Modificar el requerimiento 6
-    pass
+    ini= datetime.datetime.strptime(ini,'%Y/%m/%d %H:%M')
+    fin= datetime.datetime.strptime(fin,'%Y/%m/%d %H:%M')
+    return model.req_6(control,animal_sex, ini, fin)
+    
 
 
 def req_7(control):
