@@ -51,8 +51,8 @@ import math
 assert cf
 import sys
 from tabulate import tabulate
-default_limit = 10000
-sys.setrecursionlimit(default_limit*100)
+default_limit = 1000
+sys.setrecursionlimit(default_limit*10000)
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá
