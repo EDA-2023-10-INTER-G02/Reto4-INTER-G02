@@ -146,12 +146,12 @@ def req_4(control, ini, fin):
 
 
 
-def req_5(control):
+def req_5(control, identificador, maxDis, minPuntos):
     """
     Retorna el resultado del requerimiento 5
     """
     # TODO: Modificar el requerimiento 5
-    pass
+    return model.req_5(control, identificador, maxDis, minPuntos)
 
 def req_6(control,animal_sex, ini, fin):
     """
