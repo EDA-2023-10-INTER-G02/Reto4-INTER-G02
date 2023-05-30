@@ -452,7 +452,7 @@ def req_2(data_structs, initialStation, destination):
                     individual_count0=gr.adjacentEdges(data_structs['grafoDir'],cada_nodo)
                     individual_count= lt.size(individual_count0)
                     info_stop = mp.get(data_structs['MTPs'],cada_nodo)
-                    info= me.getValue(info_stop)['elements'][1]
+                    info= me.getValue(info_stop)['elements'][0]
                     long= info['location-long']
                     lat=info['location-lat']
                     lista_ady=[]
@@ -629,58 +629,98 @@ def req_4(data_structs, ini, fin):
             if dist<dist_menor_dest:
                 dist_menor_dest=dist
                 dest= llave
+    info_stop = mp.get(data_structs['MTPs'],ino)
+    info= me.getValue(info_stop)
+    longino= info['elements'][0]['location-long']
+    latino=info['elements'][0]['location-lat']
+    individual_idino=gr.adjacentEdges(data_structs['grafoDir'],ino)
+    lista_adyini= []
+    for ady1 in lt.iterator(individual_idino):
+        ad= ady1['vertexB']
+        info_stop=mp.get(data_structs['individualPoints'], ad)
+        info= me.getValue(info_stop)
+        ady2= info['elements'][0]['individual-id']
+        lista_adyini.append(ady2)
+    individual_idino= lista_adyini
+
+    info_stop = mp.get(data_structs['MTPs'],dest)
+    info= me.getValue(info_stop)
+    longdest= info['elements'][0]['location-long']
+    latdest=info['elements'][0]['location-lat']
+    individual_id_dest=gr.adjacentEdges(data_structs['grafoDir'],dest)
+    lista_adyini= []
+    for ady1 in lt.iterator(individual_id_dest):
+        ad= ady1['vertexB']
+        info_stop=mp.get(data_structs['individualPoints'], ad)
+        info= me.getValue(info_stop)
+        ady2= info['elements'][0]['individual-id']
+        lista_adyini.append(ady2)
+    individual_id_dest= lista_adyini
     paths= djk.Dijkstra(data_structs['grafoDir'], ino)
     hay_path= djk.hasPathTo(paths, dest)
-    path = djk.pathTo(paths, dest)
-    '''print(ino)
-    print(dest)
-    print(path)'''
-    lista_camino= lt.newList('ARRAY_LIST')
-    lista_gathering= lt.newList('ARRAY_LIST')
-    lista_camino2= lt.newList('ARRAY_LIST')
-    dist_tot=0
-    if path is not None:
-        num_vert = st.size(path)
-        while (not st.isEmpty(path)):
-            stop = st.pop(path)
-            lt.addLast(lista_camino, stop)
-    for info in lt.iterator(lista_camino):
-        lista= []
-        src_node_id= info['vertexA']
-        tgt_node_id= info['vertexB']
-        dist= info[ 'weight']
-        dist_tot+= info[ 'weight']
-        src_count=src_node_id.count('_')
-        tgt_count=tgt_node_id.count('_')
-        if src_count==1:
-            info_stop = mp.get(data_structs['MTPs'],src_node_id)
-            info= me.getValue(info_stop)['elements'][1]
-            longsrc= info['location-long']
-            latsrc=info['location-lat']
-        else:
-            info_stop=mp.get(data_structs['individualPoints'], src_node_id)
-            info= me.getValue(info_stop)
-            longsrc= info['elements'][0]['location-long']
-            latsrc=info['elements'][0]['location-lat']
-        if tgt_count==1:
-            info_stop = mp.get(data_structs['MTPs'],tgt_node_id)
-            info= me.getValue(info_stop)['elements'][1]
-            longtgt= info['location-long']
-            lattgt=info['location-lat']
-        else:
-            info_stop=mp.get(data_structs['individualPoints'], tgt_node_id)
-            info= me.getValue(info_stop)
-            longtgt= info['elements'][0]['location-long']
-            lattgt=info['elements'][0]['location-lat']
-        lista.append(src_node_id)
-        lista.append(latsrc)
-        lista.append(longsrc)
-        lista.append(tgt_node_id)
-        lista.append(lattgt) 
-        lista.append(longtgt) 
-        lista.append(dist)
-        lt.addLast(lista_camino2, lista)
-    print(lista_camino2)
+    if hay_path ==True:
+        path = djk.pathTo(paths, dest)
+        lista_camino= lt.newList('ARRAY_LIST')
+        lista_gathering= lt.newList('ARRAY_LIST')
+        lista_camino2= lt.newList('ARRAY_LIST')
+        dist_tot=0
+        if path is not None:
+            num_vert = st.size(path)
+            while (not st.isEmpty(path)):
+                stop = st.pop(path)
+                lt.addLast(lista_camino, stop)
+        for info in lt.iterator(lista_camino):
+            lista= []
+            src_node_id= info['vertexA']
+            tgt_node_id= info['vertexB']
+            dist= info[ 'weight']
+            dist_tot+= info[ 'weight']
+            src_count=src_node_id.count('_')
+            tgt_count=tgt_node_id.count('_')
+            if src_count==1:
+                lista_gath= []
+                info_stop = mp.get(data_structs['MTPs'],src_node_id)
+                info= me.getValue(info_stop)['elements'][0]
+                longsrc= info['location-long']
+                latsrc=info['location-lat']
+                lista_gath.append(src_node_id)
+                lista_gath.append(longsrc)
+                lista_gath.append(latsrc)
+                lt.addLast(lista_gathering, lista_gath)
+            else:
+                info_stop=mp.get(data_structs['individualPoints'], src_node_id)
+                info= me.getValue(info_stop)
+                longsrc= info['elements'][0]['location-long']
+                latsrc=info['elements'][0]['location-lat']
+            if tgt_count==1:
+                info_stop = mp.get(data_structs['MTPs'],tgt_node_id)
+                info= me.getValue(info_stop)['elements'][0]
+                longtgt= info['location-long']
+                lattgt=info['location-lat']
+                individual_idtgt= info['individual-id']
+                lista_gath.append(tgt_node_id)
+                lista_gath.append(longtgt)
+                lista_gath.append(lattgt)
+                lt.addLast(lista_gathering, lista_gath)
+            else:
+                info_stop=mp.get(data_structs['individualPoints'], tgt_node_id)
+                info= me.getValue(info_stop)
+                longtgt= info['elements'][0]['location-long']
+                lattgt=info['elements'][0]['location-lat']
+                individual_idtgt= info['elements'][0]['individual-id']
+            lista.append(src_node_id)
+            lista.append(latsrc)
+            lista.append(longsrc)
+            lista.append(tgt_node_id)
+            lista.append(lattgt) 
+            lista.append(longtgt)
+            lista.append(individual_idtgt) 
+            lista.append(dist)
+            lt.addLast(lista_camino2, lista)
+    num_arc= num_vert-1
+    size_gath= lt.size(lista_gathering)
+    tot_dist= dist_tot+ dist_menor_ini+ dist_menor_dest
+    return lista_camino2, lista_gathering, num_arc, num_vert, size_gath, dist_tot, dist_menor_ini, dist_menor_dest, tot_dist, ino, longino, latino,individual_idino, dest, longdest, latdest, individual_id_dest
     '''hay= mp.get(mapa,'m111p866_57p451')
     print(hay)'''
     #print(dist_menor_dest, dist_menor_ini, dest, ino)

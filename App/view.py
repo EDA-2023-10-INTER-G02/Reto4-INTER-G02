@@ -148,8 +148,31 @@ def print_req_4(control):
     # TODO: Imprimir el resultado del requerimiento 4
     ini= input('Nodo inicial')
     fin= input('Nodo final')
-    resp= controller.req_4(control, ini, fin)
-
+    lista_camino2, lista_gathering, num_arc, num_vert, size_gath, dist_tot, dist_menor_ini, dist_menor_dest, tot_dist, ino, longino, latino,individual_idino, dest, longdest, latdest, individual_id_dest= controller.req_4(control, ini, fin)
+    print('La distancia de la coordenada ingresada como punto de origen al punto de encuentro mas cercano es: ' + str(dist_menor_ini))
+    table0_1= []
+    table0_1.append([ino, longino, latino,individual_idino])
+    headers01= 'node-id', 'location-log-aprox','location-lat-aprox', 'individual-id'
+    print(tabulate(table0_1,headers=headers01,tablefmt='grid',maxcolwidths= 11, maxheadercolwidths= 11))
+    print('La distancia de la coordenada ingresada como punto de destino al punto de encuentro mas cercano es: ' + str(dist_menor_dest))
+    table0_2=[]
+    table0_2.append([dest, longdest, latdest, individual_id_dest])
+    print(tabulate(table0_2,headers=headers01,tablefmt='grid',maxcolwidths= 11, maxheadercolwidths= 11))
+    print('La distancia del punto de encuentro de origen y el punto de encuentro de destino es: '+ str(dist_tot))
+    print('La distancia total del recorrido es : '+ str(tot_dist))
+    print('La cantidad de arcos en el camino son:'+ str(num_arc))
+    print('La cantidad de arcos en el camino son:'+ str(num_vert))
+    print('La cantidad de puntos de encuentro en el recorrido son: ' + str(size_gath))
+    table= []
+    headers= 'src-node-id','location-lat-src', 'location-long-src', 'tgt-node-id','location-lat-tgt', 'location-long-tgt','individual-id' 'distance-km'
+    for coor in lt.iterator(lista_camino2):
+        table.append([coor[0], coor[1], coor[2], coor[3],coor[4],coor[5], coor[6],coor[7]])
+    print(tabulate(table,headers=headers,tablefmt='grid',maxcolwidths= 11, maxheadercolwidths= 11))
+    table2=[]
+    headers2= 'node-id','location-long-aprox', 'location-lat-aprox','individual-id','individual-count'
+    for coor in lt.iterator(lista_gathering):
+        table2.append([coor[0], coor[1], coor[2], coor[3],coor[4]])
+    print(tabulate(table2,headers=headers2,tablefmt='grid',maxcolwidths= 11, maxheadercolwidths= 11))
 
 def print_req_5(control):
     """
