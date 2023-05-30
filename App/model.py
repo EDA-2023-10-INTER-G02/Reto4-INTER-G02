@@ -894,7 +894,10 @@ def ObtainWolfInfo(data_structs, wolfId,dist):
 def pathInfo(data_structs,omMap,Id,dist):
     totalNodes =  lt.size(me.getValue(om.get(omMap,dist)))
     totalEdges = totalNodes-1
-    nodes = getIFirstandLast(me.getValue(om.get(omMap,dist)),3)
+    if lt.size(me.getValue(om.get(omMap,dist))) > 6:
+        nodes = getIFirstandLast(me.getValue(om.get(omMap,dist)),3)
+    else:
+        nodes = me.getValue(om.get(omMap,dist))['elements']
     nodeInfo = nodesInfo(nodes,data_structs)
     return totalNodes, totalEdges, nodeInfo
     
@@ -903,14 +906,19 @@ def nodesInfo(lstTracks,data_struct):
     for track in lstTracks:
         entry = mp.get(data_struct['individualPoints'],track['node-id'])
         wolfs = me.getValue(entry)['elements'][0]['individual-id']
+        node_id = track['node-id']
+        wolfCount = 1
         if entry == None:
             entry = mp.get(data_struct['MTPs'],track['node-id'])
+            print('punto de encuentro!')
             wolfs = []
+            wolfCount = 0
+            node_id = track['node-id']
             for ev in lt.iterator(me.getValue(entry)):
                 wolfs.append(ev['individual-id'])
+                wolfCount += 1
             
-        value = me.getValue(entry)
         event = me.getValue(entry)['elements'][0]
-        lstInfo = [event['node-id'],event['location-long'],event['location-lat'],wolfs,lt.size(value)]
+        lstInfo = [node_id,event['location-long'],event['location-lat'],wolfs,wolfCount]
         lstOflst.append(lstInfo)
     return lstOflst

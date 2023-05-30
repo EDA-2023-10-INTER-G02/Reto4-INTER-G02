@@ -95,7 +95,7 @@ def printTabulate_req3(lst):
                    maxcolwidths=[2,28,3,5,5,5,5,5],numalign="right"))
 
 def printTabulateWolfInfo(lst):
-    print(tabulate([lst],headers=['individual-id','animal-taxon','animal-life-stage','animal-sex','study-site','travel-dist','deployment-comments'],tablefmt='grid',maxheadercolwidths=20,maxcolwidths=20))
+    print(tabulate([lst],headers=['individual-id','animal-taxon','animal-life-stage','animal-sex','study-site','Total-travel-dist','deployment-comments'],tablefmt='grid',maxheadercolwidths=20,maxcolwidths=20))
 
 def printTabulatePathInfo(lst):
     print(tabulate(lst,headers=['node-id','location long','location lat','individual-id','wolf count'],tablefmt='grid',maxheadercolwidths=30,maxcolwidths=30))
