@@ -208,12 +208,15 @@ def print_req_6(control):
     print('\n')
 
 
-def print_req_7(control):
+def print_req_7(control,dateI, dateF,tempMax,tempMin):
     """
         Función que imprime la solución del Requerimiento 7 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 7
-    pass
+    numScc, FivemaxManInfo = controller.req_7(control,dateI, dateF,tempMax,tempMin)
+    print('\nHay ' +str(numScc)+' componentes fuertemente conectados en el grafo creado')
+    print('Las tres manadas con mayor dominio sobre el territorio son:\n')
+    printTabulate_req3(FivemaxManInfo)
 
 
 def print_req_8(control):
@@ -292,7 +295,11 @@ if __name__ == "__main__":
                 print_req_6(control)
 
             elif int(inputs) == 8:
-                print_req_7(control)
+                dateI = input('Ingrese fecha inicial: ')
+                dateF = input('Ingrese fecha final: ')
+                tempMin = float(input('Ingrese temperatura mínima: '))
+                tempMax = float(input('Ingrese temperatura máxima: '))
+                print_req_7(control,dateI, dateF,tempMax,tempMin)
 
             elif int(inputs) == 9:
                 print_req_8(control)

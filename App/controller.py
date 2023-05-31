@@ -27,6 +27,7 @@ import csv
 import tracemalloc
 from DISClib.ADT import graph as gr
 import datetime
+import tracemalloc
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
@@ -106,8 +107,6 @@ def req_1(control,pointI,pointF):
     Retorna el resultado del requerimiento 1
     """
     # TODO: Modificar el requerimiento 1
-    pointI = 'm111p862_57p449'
-    pointF = 'm111p908_57p427'
     return model.req_1(control,pointI,pointF)
 
 
@@ -158,21 +157,33 @@ def req_6(control,animal_sex, ini, fin):
     Retorna el resultado del requerimiento 6
     """
     # TODO: Modificar el requerimiento 6
-    ini = '2013-02-16 00:00'
-    fin =  '2014-10-23 23:59'
-    animal_sex = 'f'
     ini= datetime.datetime.strptime(ini,'%Y-%m-%d %H:%M')
     fin= datetime.datetime.strptime(fin,'%Y-%m-%d %H:%M')
-    return model.req_6(control,animal_sex, ini, fin)
+    #timeI = get_time()
+    tracemalloc.start()
+    memory_i = get_memory()
+    x= model.req_6(control,animal_sex, ini, fin)
+    memory_f = get_memory()
+    tracemalloc.stop()
+    #timeF = get_time()
+    #time = delta_time(timeI,timeF)
+    final_mem = delta_memory(memory_f,memory_i)
+    return x
     
 
 
-def req_7(control):
+def req_7(control,dateI, dateF,tempMax,tempMin):
     """
     Retorna el resultado del requerimiento 7
     """
     # TODO: Modificar el requerimiento 7
-    pass
+    dateI = '2012-11-28 00:00'
+    dateF = '2014-05-17 23:59'
+    tempMax = 9.7
+    tempMin = -17.3
+    dateI= datetime.datetime.strptime(dateI,'%Y-%m-%d %H:%M')
+    dateF= datetime.datetime.strptime(dateF,'%Y-%m-%d %H:%M')
+    return model.req_7(control,dateI, dateF,tempMax,tempMin)
 
 
 def req_8(control):
@@ -198,6 +209,28 @@ def delta_time(start, end):
     """
     elapsed = float(end - start)
     return elapsed
+
+def get_memory():
+    """
+    toma una muestra de la memoria alocada en instante de tiempo
+    """
+    return tracemalloc.take_snapshot()
+
+
+def delta_memory(stop_memory, start_memory):
+    """
+    calcula la diferencia en memoria alocada del programa entre dos
+    instantes de tiempo y devuelve el resultado en bytes (ej.: 2100.0 B)
+    """
+    memory_diff = stop_memory.compare_to(start_memory, "filename")
+    delta_memory = 0.0
+
+    # suma de las diferencias en uso de memoria
+    for stat in memory_diff:
+        delta_memory = delta_memory + stat.size_diff
+    # de Byte -> kByte
+    delta_memory = delta_memory/1024.0
+    return delta_memory
 
 def get_memory():
     """

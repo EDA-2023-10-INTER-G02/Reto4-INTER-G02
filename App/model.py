@@ -188,6 +188,7 @@ def formatVertex(data_structs,track):
     name = new_lon + "_" + new_lat + "_" + track['individual-id']
     position = new_lon + "_" + new_lat
     track['node-id'] = name
+    track['coordenada'] = position
     
     entry = mp.get(data_structs['posiciones'],position)
     if entry is None:
@@ -801,13 +802,152 @@ def req_6(data_structs,animal_sex, ini, fin):
     
     return wolfMaxDist, maxWolfInfo, pathInfoMax,wolfMinDist,minWolfInfo,pathInfoMin
 
-def req_7(data_structs):
+def req_7(data_structs,dateI, dateF,tempMax,tempMin):
     """
     Función que soluciona el requerimiento 7
     """
-    # TODO: Realizar el requerimiento 7
-    pass
-
+    # TO DO: Realizar el requerimiento 7
+    
+    mapaFilt = mp.newMap()
+    for wolf in lt.iterator(mp.keySet(data_structs['orderedData'])):
+        lstWolfs = lt.newList('ARRAY_LIST')
+        for track in lt.iterator(me.getValue(mp.get(data_structs['orderedData'],wolf))):
+            fecha = track['timestamp'] 
+            fecha= datetime.datetime.strptime(fecha,'%Y-%m-%d %H:%M')
+            if float(track['external-temperature']) >= tempMin and float(track['external-temperature']) <= tempMax and fecha >= dateI and fecha <= dateF:
+                lt.addLast(lstWolfs,track)
+        mp.put(mapaFilt,wolf,lstWolfs)
+    
+    mapaPosiciones = mp.newMap()
+    graFilt = grafoFilt(mapaFilt,mapaPosiciones)
+    for pos in lt.iterator(mp.keySet(mapaPosiciones)):
+        if lt.size(me.getValue(mp.get(mapaPosiciones,pos))) >= 2:
+            gr.insertVertex(graFilt,pos)
+            for node in lt.iterator(me.getValue(mp.get(mapaPosiciones,pos))):
+                gr.addEdge(graFilt,node['node-id'],pos,0)
+                gr.addEdge(graFilt,pos,node['node-id'],0)
+    #para los componentes
+    sccStruct = scc.KosarajuSCC(graFilt)
+    numScc = scc.connectedComponents(sccStruct)
+    idSccMap = mp.newMap(maptype='PROBING')
+    for nodo in lt.iterator(mp.keySet(sccStruct['idscc'])):
+        idScc = mp.get(sccStruct['idscc'],nodo)['value']
+        contains = mp.get(idSccMap,idScc)
+        if contains == None:
+            lstNodes = lt.newList('ARRAY_LIST')
+            lt.addLast(lstNodes,nodo)
+            mp.put(idSccMap,idScc,lstNodes)
+        else:
+            lstNodes = me.getValue(contains)
+            lt.addLast(lstNodes,nodo)
+            
+    omSize = om.newMap()
+    for idScc in lt.iterator(mp.keySet(idSccMap)):
+        lstNodes = me.getValue(mp.get(idSccMap,idScc))
+        if lt.size(lstNodes) > 2:
+            info = mp.newMap(maptype='PROBING')
+            mp.put(info,'idScc',idScc)
+            mp.put(info,'nodes',lstNodes)
+            om.put(omSize,lt.size(lstNodes),info)
+            
+    c =0
+    FivemaxManInfo = []
+    while c < 3:
+        minLat = 1000
+        maxLat = 0
+        minLong = 0
+        maxLong = -1000
+        infoScc = []        
+        maxM= om.maxKey(omSize)
+        info = me.getValue(om.get(omSize,maxM))
+        sccId = me.getValue(mp.get(info,'idScc'))
+        lstNodesId = me.getValue(mp.get(info,'nodes'))
+        nodeIds = getIFirstandLast(lstNodesId,3)
+        wolfs = lt.newList('ARRAY_LIST')
+        for nodo in lt.iterator(lstNodesId):
+            entry = mp.get(data_structs['MTPs'],nodo)
+            if entry == None:
+                entry = mp.get(data_structs['individualPoints'],nodo)
+                wolf = me.getValue(entry)['elements'][0]['individual-id']
+                if not lt.isPresent(wolfs,wolf):
+                    lt.addLast(wolfs,wolf)
+            event = me.getValue(entry)['elements'][0]
+            if event['location-lat'] > maxLat:
+                maxLat = event['location-lat']
+            elif event['location-lat'] < minLat:
+                minLat = event['location-lat']
+            if event['location-long'] > maxLong:
+                maxLong = event['location-long']
+            elif event['location-long'] < minLong:
+                minLong = event['location-long']    
+        infoScc.append(sccId)
+        res = []
+        p =0
+        for Id in nodeIds:
+            lst = [Id]
+            res.append(lst)
+            p+= 1
+            if p ==3:
+                pt = ['...']
+                res.append(pt) 
+        infoScc.append(tabulate(res,tablefmt="plain"))
+        infoScc.append(maxM)
+        infoScc.append(minLat)
+        infoScc.append(maxLat)
+        infoScc.append(minLong)
+        infoScc.append(maxLong)
+        infoScc.append(lt.size(wolfs))
+        lstOflst =[]
+        if lt.size(wolfs) > 6:
+            wolfs = getiFirstandLast(wolfs,3)
+        for lobo in lt.iterator(wolfs):
+            infoLobo = []
+            details = me.getValue(mp.get(data_structs['lobos'],lobo))
+            infoLobo.append(details['individual-id'])
+            infoLobo.append(details['animal-taxon'])
+            infoLobo.append(details['animal-sex'])
+            infoLobo.append(details['animal-life-stage'])
+            infoLobo.append(details['study-site'])
+            lstOflst.append(infoLobo)
+        wolftable = tabulate(lstOflst,headers=['indiv-id','wolf taxon','wolf sex','life-stage','study-site'],
+                             tablefmt='grid',maxheadercolwidths=5,maxcolwidths=5,stralign="center")
+        infoScc.append(wolftable)
+        FivemaxManInfo.append(infoScc)
+        om.deleteMax(omSize)
+        c += 1
+    return numScc, FivemaxManInfo
+    
+def grafoFilt(mapaFilt,mapaPosiciones):
+    grafoFilt = gr.newGraph(datastructure= "ADJ_LIST",directed=True)
+    for wolf in lt.iterator(mp.keySet(mapaFilt)):
+        entry = mp.get(mapaFilt,wolf)
+        wolfEventsLst = me.getValue(entry)
+        lasttrack = None
+        for track in lt.iterator(wolfEventsLst):
+            if lasttrack != None:
+                origin = lasttrack['node-id']
+                destination = track['node-id']
+                if not gr.containsVertex(grafoFilt,origin):
+                    gr.insertVertex(grafoFilt,origin)
+                if not gr.containsVertex(grafoFilt,destination):
+                    gr.insertVertex(grafoFilt,destination)
+                distance = getDistance(track,lasttrack)
+                if gr.getEdge(grafoFilt,origin,destination) ==  None:
+                    gr.addEdge(grafoFilt,origin,destination,distance)
+                try:
+                    if mp.get(mapaPosiciones,lasttrack['coordenada']) == None:
+                        lstTracks = lt.newList('ARRAY_LIST')
+                        mp.put(mapaPosiciones,track['coordenada'],lstTracks)
+                    lstTracks = me.getValue(mp.get(mapaPosiciones,track['coordenada']))
+                    lstwolfs = lt.newList()
+                    for ev in lt.iterator(lstTracks):
+                        lt.addLast(lstwolfs,ev['individual-id'])
+                    if not lt.isPresent(lstwolfs,lasttrack['individual-id']):
+                        lt.addLast(lstTracks,track)
+                except:
+                    None
+            lasttrack = track
+    return grafoFilt
 
 def req_8(data_structs):
     """
