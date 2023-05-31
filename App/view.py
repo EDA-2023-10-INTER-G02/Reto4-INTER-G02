@@ -171,7 +171,10 @@ def print_req_4(control):
     table2=[]
     headers2= 'node-id','location-long-aprox', 'location-lat-aprox','individual-id','individual-count'
     for coor in lt.iterator(lista_gathering):
-        table2.append([coor[0], coor[1], coor[2], coor[3],coor[4]])
+        lista=[]
+        for cada in lt.iterator(coor[3]):
+            lista.append(cada)
+        table2.append([coor[0], coor[1], coor[2], lista,coor[4]])
     print(tabulate(table2,headers=headers2,tablefmt='grid',maxcolwidths= 11, maxheadercolwidths= 11))
 
 def print_req_5(control, identificador, maxDis, minPuntos):
