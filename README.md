@@ -34,6 +34,7 @@ The students edit this section to add their names, Uniandes emails, and specify 
 
 1. Jacobo Zarruk, j.zarruk@uniandes.edu.co, 202223913
 1. María José Amorocho, m.amorocho@uniandes.edu.co, 202220179
+1. Angelica Ortiz, a.ortizb2@uniandes.edu.co, 202222480
 
 [Back to top](#challenge-template)
 
