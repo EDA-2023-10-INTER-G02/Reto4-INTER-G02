@@ -463,6 +463,10 @@ def req_2(data_structs, initialStation, destination):
                         info= me.getValue(info_stop)
                         ady2= info['elements'][0]['individual-id']
                         lista_ady.append(ady2)
+                    if len(lista_ady) > 6:
+                        lista_ady = ult3_prim3(lista_ady)
+                    else:
+                        lista_ady = lista_ady
                     ady= lista_ady
                 else:
                         info_stop=mp.get(data_structs['individualPoints'], cada_nodo)
@@ -684,10 +688,7 @@ def req_4(data_structs, ini, fin):
                 info= me.getValue(info_stop)['elements'][0]
                 longsrc= info['location-long']
                 latsrc=info['location-lat']
-                lista_gath.append(src_node_id)
-                lista_gath.append(longsrc)
-                lista_gath.append(latsrc)
-                lt.addLast(lista_gathering, lista_gath)
+                lt.addLast(lista_gathering, src_node_id)
             else:
                 info_stop=mp.get(data_structs['individualPoints'], src_node_id)
                 info= me.getValue(info_stop)
@@ -699,10 +700,7 @@ def req_4(data_structs, ini, fin):
                 longtgt= info['location-long']
                 lattgt=info['location-lat']
                 individual_idtgt= info['individual-id']
-                lista_gath.append(tgt_node_id)
-                lista_gath.append(longtgt)
-                lista_gath.append(lattgt)
-                lt.addLast(lista_gathering, lista_gath)
+                lt.addLast(lista_gathering, tgt_node_id)
             else:
                 info_stop=mp.get(data_structs['individualPoints'], tgt_node_id)
                 info= me.getValue(info_stop)
@@ -718,15 +716,45 @@ def req_4(data_structs, ini, fin):
             lista.append(individual_idtgt) 
             lista.append(dist)
             lt.addLast(lista_camino2, lista)
+    listagathering= lt.newList('ARRAY_LIST')
+    for mtp in lt.iterator(lista_gathering):
+        lista1=[]
+        info_stop = mp.get(data_structs['MTPs'],ino)
+        info= me.getValue(info_stop)
+        longmtp= info['elements'][0]['location-long']
+        latmtp=info['elements'][0]['location-lat']
+        individual_idmtp=gr.adjacentEdges(data_structs['grafoDir'],mtp)
+        lista_adymtp= lt.newList('ARRAY_LIST')
+        for ady1 in lt.iterator(individual_idmtp):
+            ad= ady1['vertexB']
+            info_stop=mp.get(data_structs['individualPoints'], ad)
+            info= me.getValue(info_stop)
+            ady2= info['elements'][0]['individual-id']
+            lt.addLast(lista_adymtp,ady2)
+        tam= lt.size(individual_idmtp)
+        individual_idmtp= lista_adymtp
+        if lt.size(individual_idmtp) > 6:
+            individual_idmtp = getiFirstandLast(individual_idmtp,3)
+        else:
+            individual_idmtp = individual_idmtp
+        lista1.append(mtp)
+        lista1.append(longmtp)
+        lista1.append(latmtp)
+        lista1.append(individual_idmtp)
+        lista1.append(tam)
+        lt.addLast(listagathering, lista1)
     num_arc= num_vert-1
     size_gath= lt.size(lista_gathering)
     tot_dist= dist_tot+ dist_menor_ini+ dist_menor_dest
-    return lista_camino2, lista_gathering, num_arc, num_vert, size_gath, dist_tot, dist_menor_ini, dist_menor_dest, tot_dist, ino, longino, latino,individual_idino, dest, longdest, latdest, individual_id_dest
+    if lt.size(listagathering) > 6:
+        listagathering = getiFirstandLast(listagathering,3)
+    else:
+        listagathering = listagathering
+    return lista_camino2, listagathering, num_arc, num_vert, size_gath, dist_tot, dist_menor_ini, dist_menor_dest, tot_dist, ino, longino, latino,individual_idino, dest, longdest, latdest, individual_id_dest
     '''hay= mp.get(mapa,'m111p866_57p451')
     print(hay)'''
     #print(dist_menor_dest, dist_menor_ini, dest, ino)
-        
-
+    
 def haversine(lat1, lon1, lat2, lon2):
     lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
     R = 6371
@@ -979,7 +1007,21 @@ def req_8(data_structs):
     # TODO: Realizar el requerimiento 8
     pass
 
-
+def ult3_prim3(lista):
+    lsta=[]
+    l1= lista[0]
+    l2= lista[1]
+    l3= lista[2]
+    ult1= lista[len(lista)-3]
+    ult2= lista[len(lista)-2]
+    ult3= lista[len(lista)-1]
+    lsta.append(l1)
+    lsta.append(l2)
+    lsta.append(l3)
+    lsta.append(ult1)
+    lsta.append(ult2)
+    lsta.append(ult3)
+    return lsta
 # Funciones utilizadas para comparar elementos dentro de una lista
 
 def compare(data_1, data_2):
