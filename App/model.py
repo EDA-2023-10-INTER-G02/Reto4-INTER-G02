@@ -737,12 +737,35 @@ def haversine(lat1, lon1, lat2, lon2):
     distance = R * c
     return distance
 
-def req_5(data_structs):
+def req_5(data_structs, identificador, maxDis, minPuntos):
     """
     Función que soluciona el requerimiento 5
     """
     # TODO: Realizar el requerimiento 5
-    pass
+    listaNodos = lt.newList(datastructure='ARRAY_LIST')
+    resu_djk = djk.Dijkstra(data_structs["grafoNoDir"], identificador)
+    for nodo in resu_djk['iminpq']['elements']['elements']:
+            if nodo['index'] <= maxDis:
+                lt.addLast(listaNodos, nodo)
+    listaNodosCondiciones = lt.newList(datastructure='ARRAY_LIST')
+    if minPuntos != 0:
+        for final in lt.iterator(listaNodos):
+            camino = djk.pathTo(resu_djk, final["key"])
+            path = camino['first']
+            cant = 1
+            if path:
+                listaPuntos = path['info']['vertexA']
+                path = path['next']
+                while path:
+                    listaPuntos += ", " + path['info']['vertexA']
+                    cant += 1
+                    if 'last' in path.keys():
+                        path = path['last']
+                    else:
+                        path = path['next']
+            if cant >= minPuntos:
+                lt.addLast(listaNodosCondiciones, {"Point Count" : cant, "Path distance [km]": final["index"], "Point List": listaPuntos})
+    return listaNodosCondiciones
 
 
 def req_6(data_structs,animal_sex, ini, fin):

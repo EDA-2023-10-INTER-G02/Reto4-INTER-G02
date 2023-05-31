@@ -174,12 +174,27 @@ def print_req_4(control):
         table2.append([coor[0], coor[1], coor[2], coor[3],coor[4]])
     print(tabulate(table2,headers=headers2,tablefmt='grid',maxcolwidths= 11, maxheadercolwidths= 11))
 
-def print_req_5(control):
+def print_req_5(control, identificador, maxDis, minPuntos):
     """
         Función que imprime la solución del Requerimiento 5 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 5
-    pass
+    #print(control)
+    tabla = controller.req_5(control, identificador, maxDis, minPuntos)
+    print("=============== Req No. 5 Inputs ===============")
+    print("Min of Gathering/Tracking Points to visit:", minPuntos)
+    print("Max roundtrip traveling distance:", maxDis, "[km]")
+    print("Origin gathering point: '" + identificador + "'\n")
+    if lt.isEmpty(tabla):
+        print("The origin gathering point is not conected to other points.")
+    else:
+        print("The origin gathering point is conected to other points.")
+        print("Preparing to find the longest path...\n")
+        print("=============== Req No. 5 Answer ===============")
+        print("The are", lt.size(tabla), "possible paths from point '" + identificador + "'")
+        print("The minimun number of gathering points to visit is:", minPuntos)
+        print("The maximun roundtrip distance to travel is:", maxDis, "[km]")
+        print(tabulate([tabla['elements'][1]], headers='keys', tablefmt='grid',maxcolwidths= 20, maxheadercolwidths= 20))
 
 
 def print_req_6(control):
@@ -289,7 +304,10 @@ if __name__ == "__main__":
                 print_req_4(control)
 
             elif int(inputs) == 6:
-                print_req_5(control)
+                identificador = input("Escriba el identificador del punto de encuentro de origen: ")
+                maxDis = input("Digite la máxima distancia que el guardabosques puede recorrer en kilometros: ")
+                minPuntos = input("Digite la minima cantidad de puntos de encuentros que el guardabosques desea inspeccionar: ")
+                print_req_5(control, identificador, maxDis, minPuntos)
 
             elif int(inputs) == 7:
                 print_req_6(control)
